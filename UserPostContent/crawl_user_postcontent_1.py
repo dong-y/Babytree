@@ -91,12 +91,12 @@ with open('babytree_user_post_url_1.csv', 'r') as csvfile:
 				f.close
 				continue
 			except:
-				# print url + 'other errors'
-				# f = open('othererror.text', 'a')
-				# f.write(url + '\n')
-				# f.close
+				print url + 'other errors'
+				f = open('othererror.text', 'a')
+				f.write(url + '\n')
+				f.close
 				# some or all of the counters could not be scraped
-			    pass
+			    continue
 		else:
 			continue
 
