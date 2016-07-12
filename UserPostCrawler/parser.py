@@ -43,7 +43,7 @@ def find_url(htmltag):
 	print url
 	return url
 
-with open('babytree_user_id.csv', 'rU') as csvfile:
+with open('babytree_user_id_random10.csv', 'rU') as csvfile:
 	user_id_list = csv.reader(csvfile, delimiter = ';')
 	for user_id_row in user_id_list:
 		count = 1
