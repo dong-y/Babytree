@@ -13,6 +13,7 @@ e.g. babytree_user_id.csv
 ##Output file:
 
 * babytree_user_post_url.csv
+	* user_id; postdummy; board; date; url 
 * AttributeError.txt
 * parser_AttributeError.txt
 
