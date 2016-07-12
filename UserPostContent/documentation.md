@@ -6,9 +6,9 @@
 
 ##Input file:
 
-* ID csv file
+* ID + url csv file
 
-e.g. babytree_user_id.csv
+e.g. babytree_user_post_url.csv
 
 ##Output file:
 
