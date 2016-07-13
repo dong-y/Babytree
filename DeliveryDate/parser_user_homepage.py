@@ -9,7 +9,8 @@ import csv
 from datetime import datetime
 
 # indicate the input and output folder
-YYYYMM = datetime.now().strftime("%Y%m")
+# YYYYMM = datetime.now().strftime("%Y%m")
+YYYYMM = '201607'
 inputdir = 'Input_' + YYYYMM + '/'
 rawdir = 'Rawdata_' + YYYYMM + '/'
 outputdir = 'Output_' + YYYYMM + '/'
@@ -24,6 +25,7 @@ def find_delivery_date(htmlfile):
 	output = '-'.join(delivery_date_list)
 	print "delivery_date: ", output
 	return output
+
 def haha():
 	with open(inputdir + 'babytree_user_id_random10.csv', 'rU') as csvfile:
 		user_id_list = csv.reader(csvfile, delimiter = ',')
@@ -42,7 +44,7 @@ def haha():
 				print user_id_row[0] + ' not found'
 				continue
 
-if __name__ = "main":
+if __name__ = "__main__":
 	haha()
 
 # def post_number

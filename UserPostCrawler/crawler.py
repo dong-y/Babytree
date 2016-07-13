@@ -11,17 +11,21 @@ import httplib
 
 # browser = mechanize.Browser()
 
+# indicate the folder you store data in:
+YYYYMM = '201607'
+# YYYYMM = datetime.now().strftime("%Y%m")
+inputdir = 'Input_' + YYYYMM + '/'
+rawdir = 'Rawdata_' + YYYYMM + '/'
+outputdir = 'Output_' + YYYYMM + '/'
+
 # initialization
 count_AE = 0
 count_UE = 0
 count_HE = 0
 count_user = 0
 
-# indicate the folder you store data in:
-foldername = 'Rawdata_201607/'
-
 # with open('babytree_user_id.csv', 'rU') as csvfile:
-with open('babytree_user_id_random10.csv', 'rU') as csvfile:
+with open(inputdir + 'babytree_user_id_random10.csv', 'rU') as csvfile:
 	user_id_list = csv.reader(csvfile, delimiter = ';')
 	for user_id_row in user_id_list:
 		print '***********\nuser id: ', user_id_row
@@ -47,7 +51,7 @@ with open('babytree_user_id_random10.csv', 'rU') as csvfile:
 					break
 					#continue
 				else:
-					filename = foldername + user_id_row[0] + '_post_' +str(count_page)
+					filename = rawdir + user_id_row[0] + '_post_' +str(count_page)
 					f = open(filename,'w')
 					f.write(webcontent)
 					f.close
@@ -55,7 +59,7 @@ with open('babytree_user_id_random10.csv', 'rU') as csvfile:
 			except AttributeError:
 				count_AE += 1
 				print user_id_row[0] + ' AttributeError'
-				f1 = open(foldername + 'AttributeError.txt', 'a')
+				f1 = open(outputdir + 'AttributeError.txt', 'a')
 				f1.write(user_id_row[0] + '\n')
 				f1.close
 				break
@@ -63,7 +67,7 @@ with open('babytree_user_id_random10.csv', 'rU') as csvfile:
 			except urllib2.HTTPError, e:
 				count_UE += 1
 				print user_id_row[0] + ' has been deleted'
-				f = open(foldername + 'Users_not_found.txt','a')
+				f = open(outputdir + 'Users_not_found.txt','a')
 				f.write(user_id_row[0] + '\n')
 				f.close
 				break
@@ -71,7 +75,7 @@ with open('babytree_user_id_random10.csv', 'rU') as csvfile:
 			except httplib.BadStatusLine:
 				count_HE += 1
 				print user_id_row[0] + ' BadStatusLine'
-				f = open(foldername + 'BadStatusLine_record.txt', 'a')
+				f = open(outputdir + 'BadStatusLine_record.txt', 'a')
 				f.write(user_id_row[0] + '\n')
 				f.close
 				break

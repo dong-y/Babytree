@@ -8,7 +8,8 @@ import urllib2
 from datetime import datetime
 
 # the input and output folder
-YYYYMM = datetime.now().strftime("%Y%m")
+YYYYMM = '201607'
+# YYYYMM = datetime.now().strftime("%Y%m")
 inputdir = 'Input_' + YYYYMM + '/'
 rawdir = 'Rawdata_' + YYYYMM + '/'
 outputdir = 'Output_' + YYYYMM + '/'
@@ -23,6 +24,7 @@ count_crawled = 0
 
 f1 = open(inputdir + 'Users_not_found.txt','r')
 urls_404 = f1.readlines()
+f1.close
 
 # f2 = open(inputdir + 'AttributeError.txt','r')
 # urls_ae = f2.readlines()
@@ -88,7 +90,6 @@ count_error = count_404 + count_badstatusline + count_attri + count_othererror
 
 count_left = count - count_crawled - count_error
 
-f1.close
 # f2.close
 print '**********************\nProgress Summary'
 print 'Time: ', str(datetime.now())

@@ -18,7 +18,8 @@ f.write('user_id;url;title;body\n')
 f.close()
 
 # indicate the input and output folder
-YYYYMM = datetime.now().strftime("%Y%m")
+# YYYYMM = datetime.now().strftime("%Y%m")
+YYYYMM = '201607'
 inputdir = 'Input_' + YYYYMM + '/'
 rawdir = 'Rawdata_' + YYYYMM + '/'
 outputdir = 'Output_' + YYYYMM + '/'

@@ -11,9 +11,12 @@ import csv
 # loop all the files
 # parse user_id, post_title, board, date
 
-# indicate folder
-inputdir = 'Rawdata_201607/'
-outputdir = 'Output_201607/'
+# indicate the folder you store data in:
+YYYYMM = '201607'
+# YYYYMM = datetime.now().strftime("%Y%m")
+inputdir = 'Input_' + YYYYMM + '/'
+rawdir = 'Rawdata_' + YYYYMM + '/'
+outputdir = 'Output_' + YYYYMM + '/'
 
 def find_title(htmltag):
 	title = htmltag.find('a').get('title')
@@ -43,7 +46,7 @@ def find_url(htmltag):
 	print url
 	return url
 
-with open('babytree_user_id_random10.csv', 'rU') as csvfile:
+with open(inputdir + 'babytree_user_id_random10.csv', 'rU') as csvfile:
 	user_id_list = csv.reader(csvfile, delimiter = ';')
 	for user_id_row in user_id_list:
 		count = 1

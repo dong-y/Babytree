@@ -12,7 +12,8 @@ from datetime import datetime
 # browser = mechanize.Browser()
 
 # indicate the input and output folder
-YYYYMM = datetime.now().strftime("%Y%m")
+YYYYMM = '201607'
+# YYYYMM = datetime.now().strftime("%Y%m")
 inputdir = 'Input_' + YYYYMM + '/'
 rawdir = 'Rawdata_' + YYYYMM + '/'
 outputdir = 'Output_' + YYYYMM + '/'
