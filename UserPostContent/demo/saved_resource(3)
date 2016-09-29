@@ -1,0 +1,2296 @@
+/*[/static/bui/extension/stat/stat.js]*/
+/*
+ * stat.js
+ * 日志统计相关方法集合
+ */
+(function (global, $, bui) {
+    "use strict";
+
+    var document = global.document;
+
+    /*
+     * 生成伪GUID http://baike.baidu.com/view/185358.htm 利用random随机数
+     */
+    function guid() {
+        var tmpl = Math.random().toString(31).substr(2, 32);
+        return tmpl.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, '$1-$2-$3-$4-$5');
+    }
+
+    var LogUrl = {
+
+        /*
+         * LogUrl地址检测
+         * 检测地址是否是以http://或https://开头，保证地址是绝对路径
+         */
+        isCorrect : function (src) {
+            return LogUrl.LOGURLRE.test(src);
+        },
+
+        /*
+         * 发送请求，记录日志
+         * 使用$.get方法占用内存较高；
+         * 使用Image占用内存适中，且实现简单
+         * 使用原生XMLHttpRequest占用内存较低；
+         * src: trim 之后的logurl
+         */
+        stat: function (src) {
+            var id,
+                img;
+
+            id = guid();
+            img = global[id] = new global.Image();
+
+            img.onload = img.onerror = img.abort = function () {
+                global[id] = null;
+                try{
+                    delete global[id];
+                } catch(ex) {
+                }
+                img.onload = img.onerror = img.abort = null;
+            };
+
+            img.src = src;
+        }
+    };
+
+
+    // 将logurl统计标签委托在document上
+    // 使用mousedown事件是为了利用鼠标按下的瞬间进行统计，
+    // 防止click事件因页面已跳转导致没有时机进行统计消息发送
+    if (bui) {
+        $(document).delegate("[refcode]", "mousedown", function () {
+            if (bui.webSite && bui.webSite.getRdDomain) {
+                LogUrl.stat('http://' + bui.webSite.getRdDomain() + '/rd/rd.php?refcode=' + $.trim(this.getAttribute("refcode")));
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+}(this, this.jQuery, this.bui));
+/*[/img/bui/editor/tinyEditor/tinyeditor.js]*/
+(function(a){if(typeof bui =="undefined"){bui={}}bui.editor=function(e,d){function i(c){return document.getElementById(c)}function b(){return document.all?1:0}var h=[],g=-20;h.print=[1,"打印","a","print"];h.bold=[3,"粗体","a","bold"];h.italic=[4,"斜体","a","italic"];h.underline=[5,"下划线","a","underline"];h.strikethrough=[6,"删除线","a","strikethrough"];h.orderedlist=[7,"有序列表","a","insertorderedlist"];h.unorderedlist=[8,"无序列表","a","insertunorderedlist"];h.outdent=[9,"减小缩进","a","outdent"];h.indent=[10,"缩进","a","indent"];h.leftalign=[11,"左对齐","a","justifyleft"];h.centeralign=[12,"中间对齐","a","justifycenter"];h.rightalign=[13,"右对齐","a","justifyright"];h.blockjustify=[14,"左右对齐","a","justifyfull"];h.emoticon=[18,"表情","e","emoticon"];h.image=[21,"插入图片","i","insertimage","Enter Image URL:","http://"];function f(P,c){this.n=P;var o=window[P]=this;this.t=i(c.id);this.obj=c;this.xhtml=c.xhtml;var N=document.createElement("div"),K=document.createElement("div"),U=document.createElement("div"),S=c.controls.length,T=0;this.i=document.createElement("iframe");this.i.frameBorder=0;this.i.width=(c.width-2)||"500";this.i.height=c.height||"250";this.ie=b();U.className="bui-tinyeditor-teheader";if(this.obj.bgheader==true){U.className=U.className+" bui-tinyeditor-bgheader"}N.style.width=c.width+"px";N.appendChild(U);this.t.parentNode.insertBefore(N,this.t);K.className="bui-tinyeditor-te";if(this.obj.align=="left"){this.alignClass="bui-tinyeditor-alignleft"}else{this.alignClass="bui-tinyeditor-alignright"}var ab,z=0;function J(){var n="",w=0;for(var x=0;x<3;x++){if(x===0){n=n+'<table class="emo-table" cellpadding="0" cellspacing="0" border="0"><tbody>'}else{n=n+'<table class="emo-table" style="display:none;" cellpadding="0" cellspacing="0" border="0"><tbody>'}for(var m=0;m<5;m++){n=n+"<tr>";for(var l=0;l<9;l++){n=n+'<td class="emo-cell"><span class="emo-img" style=" background-position: '+w+'px 0px; "></span></td>';w=w-24}n=n+"</tr>"}n=n+"</tbody></table>"}return n}for(T;T<S;T++){var H=c.controls[T];if(H=="n"){U=document.createElement("div");U.className="bui-tinyeditor-teheader";if(this.obj.bgheader==true){U.className=U.className+" bui-tinyeditor-bgheader"}N.appendChild(U)}else{if(H=="|"){var aa=document.createElement("div");aa.className="bui-tinyeditor-tedivider "+this.alignClass;U.appendChild(aa)}else{if(H=="font"){var C=document.createElement("select"),R=c.fonts||[["宋体","宋体"],["黑体","黑体"],["仿宋","仿宋_GB2312"],["楷体","楷体_GB2312"],["隶书","隶书"],["幼圆","幼圆"],["微软雅黑","微软雅黑"]],B=R.length,I=0;C.className="tefont  bui-tinyeditor-alignleft";C.onchange=new Function(this.n+'.ddaction(this,"fontname")');C.options[0]=new Option("字体","");for(I;I<B;I++){var V=R[I];C.options[I+1]=new Option(V[0],V[1])}U.appendChild(C)}else{if(H=="size"){var C=document.createElement("select"),v=c.sizes||[1,2,3,4,5,6,7],u=v.length,I=0;C.className="tesize  bui-tinyeditor-alignleft";C.onchange=new Function(this.n+'.ddaction(this,"fontsize")');for(I;I<u;I++){var q=v[I];C.options[I]=new Option(q,q)}U.appendChild(C)}else{if(H=="style"){var C=document.createElement("select"),E=c.styles||[["格式",""],["段落","<p>"],["Header 1","<h1>"],["Header 2","<h2>"],["Header 3","<h3>"],["Header 4","<h4>"],["Header 5","<h5>"],["Header 6","<h6>"]],u=E.length,I=0;C.className="testyle  bui-tinyeditor-alignleft";C.onchange=new Function(this.n+'.ddaction(this,"formatblock")');for(I;I<u;I++){var O=E[I];C.options[I]=new Option(O[0],O[1])}U.appendChild(C)}else{if(h[H]){var W=document.createElement("div"),I=h[H],y=I[2],L,F=I[0]*g;W.style.width="20px";W.className="bui-tinyeditor-tecontrol "+this.alignClass;W.style.backgroundPosition="0px "+F+"px";W.title=I[1];L=y=="a"?'.action("'+I[3]+'",0,'+(I[4]||0)+")":y=="e"?" .emoticon()":'.insert("'+I[4]+'","'+I[5]+'","'+I[3]+'")';W.onclick=new Function(this.n+(H=="print"?".print()":L));U.appendChild(W);if(this.ie){W.unselectable="on"}if(H=="emoticon"){ab=document.createElement("div"),s=J()+'<ul class="emo-pager"><li>[1]</li><li><a href="javascript:void(0);">[2]</a></li><li><a href="javascript:void(0);">[3]</a></li></ul>';ab.className="bui-plugin-emoticons";ab.style.display="none";ab.style.left=W.offsetLeft+"px";ab.style.top=(W.offsetTop+26)+"px";ab.innerHTML=s;U.appendChild(ab);var A=a(ab).find(".emo-pager");A.delegate("li","click",function(p){var w=this,l=1,m=a(ab).find(".emo-table");A.children().each(function(){if(this==w){a(this).html("["+l+"]");m.get(l-1).style.display="block"}else{a(this).html('<a href="javascript:void(0);">['+l+"]</a>");m.get(l-1).style.display="none"}l++});p.stopPropagation();p.preventDefault()});a(U).find("div[title=表情]").click(function(l){l.stopPropagation();l.preventDefault()});a("html").bind("click",function(){ab.style.display="none"});a(ab).delegate(".emo-img","click",function(l){l.stopPropagation();l.preventDefault();var m=(Math.abs(parseInt(this.style.backgroundPosition.split(" ")[0]))/24);o.insertHtml('<img alt="'+m+'" src="http://static01.babytreeimg.com/img/bui/editor/tinyEditor/images/emoticons/'+m+'.gif"/>');ab.style.display="none"})}}}}}}}}this.t.style.width=this.i.width+"px";K.appendChild(this.t);K.appendChild(this.i);N.appendChild(K);this.t.style.display="none";if(c.footer){var X=document.createElement("div");X.className=c.footerclass||"tefooter";if(c.toggle){var ac=c.toggle,Z=document.createElement("div");Z.className=ac.cssclass||"toggle";Z.innerHTML=c.toggletext||"source";Z.onclick=new Function(this.n+".toggle(0,this);return false");X.appendChild(Z)}if(c.resize){var G=c.resize,D=document.createElement("div");D.className=G.cssclass||"resize";D.onmousedown=new Function("event",this.n+".resize(event);return false");D.onselectstart=function(){return false};X.appendChild(D)}N.appendChild(X)}this.e=this.i.contentWindow.document;this.e.open();var Q="<!DOCTYPE html><html><head>";if(c.cssfile){Q+='<link rel="stylesheet" href="'+c.cssfile+'" />'}if(c.css){Q+='<style type="text/css">'+c.css+"</style>"}Q+='</head><body contenteditable="true" style="margin:0;border:0;padding:0;background-color:white;">'+(c.content||this.t.value);Q+="</body></html>";this.e.write(Q);this.e.close();this.e.designMode="on";this.d=1;if(this.xhtml){try{this.e.execCommand("styleWithCSS",0,0)}catch(Y){try{this.e.execCommand("useCSS",0,1)}catch(Y){}}}if(this.ie){var r=this;var M=this.i;var k=this.e;r.ieSelectionBookmark=null;var j=function(){var l=k.selection.createRange();r.ieSelectionBookmark=l.getBookmark()};k.attachEvent("onbeforedeactivate",j);var t=function(){if(r.ieSelectionBookmark){var l=k.body.createTextRange();l.moveToBookmark(r.ieSelectionBookmark);l.collapse();l.select()}};k.attachEvent("onactivate",t)}this.emoticon=function(){this.i.contentWindow.focus();ab.style.display="block"};this.focus=function(){this.i.contentWindow.focus()};this.insert=function(n,m,l){bui.currentTinyEditor=this;if(window.tinyWindow){tinyWindow.show()}else{window.tinyWindow=bui.dialog({title:"图片",height:540,width:670,hasCancel:false,centerRight:c.dialogCenterRight||0,centerBottom:c.dialogCenterBottom||0});tinyWindow.find(".dialog-body").append("<iframe style='width:100%;height:100%' marginheight=0 marginwidth=0 src='/user/tinyeditor_insert_pic.php'></iframe>");tinyWindow.show()}};this.insertHtml=function(l){this.i.contentWindow.focus();if(this.ie){this.e.selection.createRange().pasteHTML(l)}else{this.e.execCommand("InsertHtml","",l)}};this.setHtml=function(l){this.e.body.innerHTML="";this.insertHtml(l);this.post()};this.getHtml=function(){return this.e.body.innerHTML};this.insertCallback=function(l){this.i.contentWindow.focus();if(l!=null&&l!=""){this.e.execCommand("insertimage",false,l)}};this.toggle=function(m,n){if(!this.d){var l=this.t.value;if(n){n.innerHTML=this.obj.toggletext||"source"}if(this.xhtml&&!this.ie){l=l.replace(/<strong>(.*)<\/strong>/gi,'<span style="font-weight: bold;">$1</span>');l=l.replace(/<em>(.*)<\/em>/gi,'<span style="font-weight: italic;">$1</span>')}this.e.body.innerHTML=l;this.t.style.display="none";this.i.style.display="block";this.d=1;return l}else{var l=this.e.body.innerHTML;if(this.xhtml){l=l.replace(/<span class="apple-style-span">(.*)<\/span>/gi,"$1");l=l.replace(/ class="apple-style-span"/gi,"");l=l.replace(/<span style="">/gi,"");l=l.replace(/<br>/gi,"<br />");l=l.replace(/<br ?\/?>$/gi,"");l=l.replace(/^<br ?\/?>/gi,"");l=l.replace(/(<img [^>]+[^\/])>/gi,"$1 />");l=l.replace(/<b\b[^>]*>(.*?)<\/b[^>]*>/gi,"<strong>$1</strong>");l=l.replace(/<i\b[^>]*>(.*?)<\/i[^>]*>/gi,"<em>$1</em>");l=l.replace(/<u\b[^>]*>(.*?)<\/u[^>]*>/gi,'<span style="text-decoration:underline">$1</span>');l=l.replace(/<(b|strong|em|i|u) style="font-weight: normal;?">(.*)<\/(b|strong|em|i|u)>/gi,"$2");l=l.replace(/<(b|strong|em|i|u) style="(.*)">(.*)<\/(b|strong|em|i|u)>/gi,'<span style="$2"><$4>$3</$4></span>');l=l.replace(/<span style="font-weight: normal;?">(.*)<\/span>/gi,"$1");l=l.replace(/<span style="font-weight: bold;?">(.*)<\/span>/gi,"<strong>$1</strong>");l=l.replace(/<span style="font-style: italic;?">(.*)<\/span>/gi,"<em>$1</em>");l=l.replace(/<span style="font-weight: bold;?">(.*)<\/span>|<b\b[^>]*>(.*?)<\/b[^>]*>/gi,"<strong>$1</strong>")}if(n){n.innerHTML=this.obj.toggletext||"wysiwyg"}this.t.value=l;if(!m){this.t.style.height=this.i.height+"px";this.i.style.display="none";this.t.style.display="block";this.d=0}return l}};this.post=function(){if(this.d){return this.toggle(1)}};this.print=function(){this.i.contentWindow.print()};this.ddaction=function(l,m){var p=l.selectedIndex,n=l.options[p].value;this.action(m,n)},this.action=function(l,n,m){if(m&&!this.ie){alert("Your browser does not support this function.")}else{this.e.execCommand(l,0,n||null)}}}return new f(e,d)}})(jQuery);
+/*[/img/bui/extension/log/authcode.js]*/
+/**
+ * 注册用验证码
+ */
+(function (global, $, document) {
+    'use strict';
+
+    function Authcode(element) {
+        this.wrap = $(element);
+    }
+
+    Authcode.prototype = {
+
+        constructor: Authcode,
+
+        createVerifyCode: function (url) {
+            var $html = $('<div>' +
+                    '<label class="float label-verify-code">验证码</label>' +
+                    '<input type="text" name="verify_code" class="login-input-text"' +
+                        'data-toggle="validate"' +
+                        'placeholder="输入验证码"' +
+                        'data-required data-required-message="不能为空" />' +
+                        '<img class="verify-code-img"' +
+                            'width="88" height="32" />' +
+                    '</div>');
+
+            this.wrap.html($html);
+
+            $html.find('img').click(function () {
+                var src = url + '&t=' + (new Date()).getTime();
+                $(this).attr('src', src);
+            }).click();
+
+            this.input = $html.find('input');
+        },
+
+        createGeeTest: function (url) {
+            var captchaWrap = this.wrap[0],
+                script = document.createElement('script');
+
+            script.src = url;
+
+            captchaWrap.innerHTML = '';
+            captchaWrap.appendChild(script);
+        },
+
+        init: function () {
+            var that = this;
+            $.ajax({
+                type: 'GET',
+                url: '/common/drag_captcha.php?jsoncallback=?',
+                data: {
+                    type: 'geetest',
+                    position: 'float',
+                    submitid: 'submit'
+                },
+                cache: false,
+                dataType: 'jsonp',
+                success: function (data) {
+                    if (data.status === 'success') {
+                        if (data.type === 'drag') {
+                            that.createGeeTest(data.url);
+                        } else if (data.type === 'image') {
+                            that.createVerifyCode(data.url);
+                        }
+                    }
+                }
+            });
+        },
+
+        val: function () {
+            if (!this.input) {
+                return {
+                    geetest_challenge: this.wrap.find('input[name=geetest_challenge]').val(),
+                    geetest_validate: this.wrap.find('input[name=geetest_validate]').val(),
+                    geetest_seccode: this.wrap.find('input[name=geetest_seccode]').val()
+                };
+            }
+            return {
+                auth_code_reg: this.wrap.find('input').val()
+            };
+        },
+
+        validate: function () {
+            if (!this.input) {
+                return true;
+            }
+            var $input = this.input,
+                validate = $input.data('validate'),
+                result;
+
+            if (!validate) {
+                $input.validate();
+                validate = $input.data('validate');
+            }
+
+            result = validate.checkValidity(true);
+
+            if (result !== true) {
+                $input.blur();
+            }
+
+            return result;
+        },
+
+        refresh: function () {
+            var $verifyCode = this.wrap.find('.verify-code-img, .gt_refresh_button');
+            $verifyCode[0].click();
+        },
+
+        show: function () {
+            this.wrap.show();
+        },
+
+        hide: function () {
+            this.wrap.hide();
+        }
+    };
+
+    global.log = global.log || {};
+
+    global.log.Authcode = new Authcode('#captchaWrap');
+}(this, this.jQuery, this.document));
+/*[/static/bui/widget/placeholderusespan.js]*/
+/*
+ * jQuery placeholder plugin
+ * Version 1.3.1 (23-MAR-2012)
+ * @requires jQuery v1.3 or later
+ *
+ * Examples at: http://mario.ec/static/jq-placeholder/
+ * Copyright (c) 2010 Mario Estrada
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/mit-license.php
+ *
+ */
+
+(function($) {
+	var old_ie = (($.browser && $.browser.msie && $.browser.version < 8) || ($.support && !$.support.leadingWhitespace));
+	$.placeholdero = function() {
+	};
+	$.extend($.placeholdero, {
+		defaults : {
+			color : '#999',
+			fallback : true,
+			animDuration : 300,
+			minOpacity : 0.6
+		},
+		setDefaults : function(settings) {
+			$.extend($.placeholdero.defaults, settings);
+		},
+		checkVal : function(val, label, event_blur) {
+			if (val.length === 0)
+				$(label).show();
+			else
+				$(label).hide();
+
+			return val.length > 0;
+		},
+		html5_support : function() {
+			var i = document.createElement('input');
+			return 'placeholder' in i;
+		}
+	});
+
+	$.fn.placeholder = function(text, _options) {
+		var options, elems;
+		options = $.extend($.placeholdero.defaults, _options);
+		elems = this
+				.filter('textarea, input:not(:checkbox,:radio,:file,:submit,:reset)');
+
+		if (options.fallback && $.placeholdero.html5_support())
+			return this;
+
+		elems.each(function() {
+			var $elem, attr_name, label_text, placeholder_container, placeholder_label;
+
+			$elem = $(this);
+			if ($elem.attr('data-jq-placeholder') == 'processed')
+				return;
+
+			attr_name = $elem.attr('placeholder') !== undefined
+					&& $elem.attr('placeholder') !== '' ? 'placeholder'
+					: 'title';
+			label_text = text === undefined || text === '' ? $(this)
+					.attr(attr_name) : text;
+			if(label_text===undefined)return;
+			placeholder_container = $('<span class="placeholder_container"></span>');
+			placeholder_label = $('<span class="placeholder">' + label_text
+					+ '</span>');
+
+			// If used, remove the placeholder attribute to prevent conflicts
+			if (attr_name == 'placeholder')
+				$elem.removeAttr('placeholder');
+
+			placeholder_container.css( {
+				display : 'inline-block',
+				position : 'relative',
+                float: $elem.css('float'),
+                width: '100%'
+            });
+
+			if ($elem.attr('data-percent-width') == 'true')
+				placeholder_container.css('width', '100%');
+
+			if ($elem.attr('data-percent-height') == 'true')
+				placeholder_container.css('height', '100%');
+
+			if (old_ie) {
+				placeholder_container.css( {
+					zoom : 1,
+                    //display : 'inline'
+					display : 'block'
+				});
+			}
+
+			$elem.wrap(placeholder_container).attr('data-jq-placeholder',
+					'processed');
+
+            placeholder_label.css({
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
+            });
+
+            placeholder_label.css({
+                position : 'absolute',
+                display : 'block',
+                fontFamily : $elem.css('font-family'),
+                fontSize : $elem.css('font-size'),
+                color : options.color,
+                left: 0,
+                top: 0,
+                //top: $elem.position().top + 'px',
+                //padding: $elem.css('padding'), // IE 8 报错
+                paddingLeft: $elem.css('padding-left'),
+                paddingRight: $elem.css('padding-right'),
+                paddingTop: $elem.css('padding-top'),
+                paddingBottom: $elem.css('padding-bottom'),
+                //margin: $elem.css('margin'),
+                marginLeft: $elem.css('margin-left'),
+                marginRight: $elem.css('margin-right'),
+                marginTop: $elem.css('margin-top'),
+                marginBottom: $elem.css('margin-bottom'),
+                width: '100%',
+                //width: $elem.outerWidth(),
+                height: $elem.outerHeight() || $elem.css('font-size'),
+                //lineHeight: ($elem.outerHeight() || $elem.css('font-size')) + 'px',
+				//height : e_height,
+				lineHeight : $elem.css('line-height'),
+				textAlign : 'left',
+				pointerEvents : 'none'
+			}).data('jq_placeholder_element', $elem);
+
+            placeholder_label.click(function() {
+                $($(this).data('jq_placeholder_element'))
+                        .trigger('click').trigger('focus');
+            });
+
+			placeholder_label.click(function() {
+				$($(this).data('jq_placeholder_element'))
+						.trigger('click').trigger('focus');
+			});
+
+            // 添加空节点，解决IE6bug
+            $elem.before(document.createTextNode("\n"));
+
+			$elem.before(placeholder_label).bind(
+					'focus.jq_placeholder',
+					function() {
+						if (!$.placeholdero.checkVal($(this).val(),
+								placeholder_label))
+							placeholder_label.stop().fadeTo(
+									options.animDuration,
+									options.minOpacity);
+					}).bind(
+					'blur.jq_placeholder change.jq_placeholder',
+					function() {
+						if (!$.placeholdero.checkVal($(this).val(),
+								placeholder_label))
+							placeholder_label.stop().fadeTo(
+									options.animDuration, 1);
+					}).bind('keydown.jq_placeholder, paste.jq_placeholder',
+					function(e) {
+						$(placeholder_label).hide();
+					}).bind('keyup.jq_placeholder', function(e) {
+				$.placeholdero.checkVal($(this).val(), placeholder_label);
+			});
+		});
+
+		return this;
+	};
+
+	//$(function() {
+		//$('textarea[placeholder],input[placeholder]').placeholder();
+	//});
+})(jQuery);
+/*[/static/bui/widget/typeahead.js]*/
+(function(global, $, document, undefined){
+    'use strict';
+
+    /*
+     * TYPEAHEAD PUBLIC CLASS DEFINITION
+     */
+    function Typeahead(element, options) {
+        this.$element = $(element);
+        this.options = $.extend({}, $.fn.typeahead.defaults, options);
+        this.matcher = this.options.matcher || this.matcher;
+        this.sorter = this.options.sorter || this.sorter;
+        this.highlighter = this.options.highlighter || this.highlighter;
+        this.updater = this.options.updater || this.updater;
+        this.$menu = $(this.options.menu).appendTo('body');
+
+        this.source = this.options.source;
+        this.shown = false;
+        this.listen();
+    }
+
+    Typeahead.prototype = {
+        constructor: Typeahead, 
+    
+        select: function () {
+            var val = this.$menu.find('.active').attr('data-value');
+            this.$element.val(this.updater(val))
+                    .change()
+                    .focus();
+
+            return this.hide();
+        }, 
+    
+        updater: function (item) {
+            return item;
+        }, 
+    
+        show: function () {
+            var pos = $.extend({}, this.$element.offset(), {
+                height: this.$element[0].offsetHeight
+            });
+    
+            this.$menu.css({
+                top: pos.top + pos.height, 
+                left: pos.left
+            });
+    
+            this.$menu.show();
+            this.shown = true;
+            return this;
+        }, 
+    
+        hide: function () {
+            this.$menu.hide();
+            this.shown = false;
+            return this;
+        }, 
+    
+        lookup: function (event) {
+            var items,
+                index;
+    
+            this.query = this.$element.val();
+    
+            index = this.query.indexOf(this.options.trigger);
+    
+            if (this.options.trigger) {
+                if (index === -1) {
+                    return this.shown ? this.hide() : this;
+                } else {
+                    this.query = this.query.substr(index + 1);
+                }
+            }
+    
+            // 兼顾minLength=0的情况
+            if ((!this.query && this.options.minLength) || this.query.length < this.options.minLength) {
+                return this.shown ? this.hide() : this;
+            }
+
+            if ($.isFunction(this.source)) {
+                items = this.source(this.query, $.proxy(this.process, this));
+            } else {
+                items = [].concat(this.source);
+            }
+
+            return items ? this.process(items) : this;
+        }, 
+    
+        process: function (items) {
+            var that = this;
+            //是否对服务器端返回数据做过滤
+            //items = $.grep(items, function (item) {
+                //return that.matcher(item);
+            //});
+    
+            items = this.sorter(items);
+
+            if (!items.length) {
+                return this.shown ? this.hide() : this;
+            }
+    
+            // ptions.items为0，则表示显示所有数据项
+            items = items.slice(0, this.options.items || items.length);
+            return this.render(items).show();
+        }, 
+    
+        matcher: function (item) {
+            return ~item.toLowerCase().indexOf(this.query.toLowerCase());
+        }, 
+    
+        sorter: function (items) {
+            var beginswith = [], 
+                caseSensitive = [], 
+                caseInsensitive = [], 
+                item;
+                item = items.shift();
+
+            while (item) {
+                if (!item.toLowerCase().indexOf(this.query.toLowerCase())) {
+                    beginswith.push(item);
+                } else if (~item.indexOf(this.query)) {
+                    caseSensitive.push(item);
+                } else {
+                    //caseInsensitive.push(item);
+                }
+                item = items.shift();
+            }
+    
+    
+            return beginswith.concat(caseSensitive, caseInsensitive);
+        }, 
+    
+        highlighter: function (item) {
+            var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+            return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                return '<strong>' + match + '</strong>';
+            });
+        }, 
+    
+        render: function (items) {
+            var that = this,
+                index,
+                ahead = '';
+    
+            this.query = this.$element.val();
+
+            index = this.query.indexOf(this.options.trigger);
+    
+            if (this.options.trigger) {
+                if (index !== -1) {
+                    ahead = this.query.substring(0, index + 1);
+                }
+            }
+    
+            items = $(items).map(function (i, item) {
+                item = ahead + item;
+                i = $(that.options.item).attr('data-value', item);
+                i.find('a').html(that.highlighter(item));
+                return i[0];
+            });
+
+            items.first().addClass('active');
+            this.$menu.html(items).width(this.$element.outerWidth());
+            return this;
+        }, 
+    
+        next: function (event) {
+            var active = this.$menu.find('.active').removeClass('active'), 
+            next = active.next();
+    
+            if (!next.length) {
+                next = $(this.$menu.find('li')[0]);
+            }
+    
+            next.addClass('active');
+        }, 
+    
+        prev: function (event) {
+            var active = this.$menu.find('.active').removeClass('active'), 
+            prev = active.prev();
+    
+            if (!prev.length) {
+                prev = this.$menu.find('li').last();
+            }
+    
+            prev.addClass('active');
+        }, 
+    
+        listen: function () {
+            this.$element.bind('blur', $.proxy(this.blur, this))
+                    .bind('keypress', $.proxy(this.keypress, this))
+                    .bind('keyup', $.proxy(this.keyup, this));
+    
+            if ($.browser.webkit || $.browser.msie) {
+                this.$element.bind('keydown', $.proxy(this.keydown, this));
+            }
+    
+            this.$menu.bind('click', $.proxy(this.click, this))
+                    .delegate( 'li','mouseenter', $.proxy(this.mouseenter, this));
+        }, 
+    
+        move: function (e) {
+            if (!this.shown) {
+                return;
+            }
+    
+            switch(e.keyCode) {
+                case 9: // tab
+                case 13: // enter
+                case 27: // escape
+                    e.preventDefault();
+                    break;
+    
+                case 38: // up arrow
+                    e.preventDefault();
+                    this.prev();
+                    break;
+    
+                case 40: // down arrow
+                    e.preventDefault();
+                    this.next();
+                    break;
+            }
+    
+            e.stopPropagation();
+        }, 
+    
+        keydown: function (e) {
+            // down arrow: 40
+            // up arrow: 38
+            // tab: 9
+            // enter: 13
+            // esc: 27
+            this.suppressKeyPressRepeat = !~$.inArray(e.keyCode, [40,38,9,13,27]);
+            this.move(e);
+        }, 
+    
+        keypress: function (e) {
+            if (this.suppressKeyPressRepeat) {
+                return;
+            }
+            this.move(e);
+        }, 
+    
+        keyup: function (e) {
+            switch (e.keyCode) {
+                case 40: // down arrow
+                case 38: // up arrow
+                    break;
+    
+                case 9: // tab
+                case 13: // enter
+                    // 触发回车键有可能是IME输入法的输入
+                    if (!this.shown) {
+                        this.lookup();
+                    } else {
+                        this.select();
+                    }
+                    break;
+    
+                case 27: // escape
+                    if (!this.shown) {
+                        return;
+                    }
+                    this.hide();
+                    break;
+    
+                default:
+                    this.lookup();
+            }
+    
+            e.stopPropagation();
+            e.preventDefault();
+        }, 
+    
+        blur: function (e) {
+            var that = this;
+            window.setTimeout(function () { that.hide(); }, 150);
+        }, 
+    
+        click: function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.select();
+        }, 
+    
+        mouseenter: function (e) {
+            this.$menu.find('.active').removeClass('active');
+            $(e.currentTarget).addClass('active');
+        }
+
+    };
+
+
+    /*
+    * TYPEAHEAD PLUGIN DEFINITION ===========================
+    */
+
+    $.fn.typeahead = function (option) {
+        return this.each(function () {
+            var $this = $(this), 
+                data = $this.data('typeahead'), 
+                options = typeof option == 'object' && option;
+
+            if (!data) {
+                data = new Typeahead(this, options);
+                $this.data('typeahead', data);
+            }
+            if (typeof option == 'string') {
+                data[option]();
+            }
+        });
+    };
+
+    $.fn.typeahead.defaults = {
+            source: [], 
+            items: 8, 
+            menu: '<ul class="bui-typeahead-menu"></ul>', 
+            item: '<li><a href="#"></a></li>', 
+            minLength: 1,
+            trigger: ''
+    };
+
+    $.fn.typeahead.Constructor = Typeahead;
+
+
+    /*
+    * TYPEAHEAD DATA-API ==================
+    */
+
+    $(function () {
+        $('body').delegate('[data-provide="typeahead"]','focus.typeahead.data-api', function (e) {
+            var $this = $(this);
+            if ($this.data('typeahead')) {return;}
+            e.preventDefault();
+            $this.typeahead($this.data());
+        });
+    });
+
+})(this, jQuery, document);
+/*[/static/bui/mtn/topic.js]*/
+(function (global, $, document, undefined) {
+    'use strict';
+
+    var topics = $({}),
+        slice = [].slice;
+
+    function wrapper(fn) {
+        return function () {
+            fn.apply(this, slice.call(arguments, 1));
+        };
+    }
+
+    $.subscribe = function (topic, callback) {
+        topics.bind(topic, wrapper(callback));
+        //topics.bind.apply(topics, arguments);
+    };
+
+    $.unsubscribe = function () {
+        topics.unbind.apply(topics, arguments);
+    };
+
+    $.publish = function () {
+        topics.trigger.apply(topics, arguments);
+        //topics.trigger(arguments[0], slice.call(arguments, 1));
+    };
+
+    $.fn.subscribe = function (topic, callback) {
+        this.bind(topic, wrapper(callback));
+    };
+
+    $.fn.unsubscribe = function () {
+        this.unbind.apply(this, arguments);
+    };
+
+    $.fn.publish = function () {
+        this.trigger.apply(this, arguments);
+    };
+}(this, jQuery, document));
+/*[/static/bui/mtn/validate.js]*/
+/**
+ * 基于表单元素的检查器
+ */
+(function (global, $, document, undefined) {
+    'use strict';
+
+    function Validate(element, options) {
+        this.$element = $(element);
+        this.options = $.extend({}, this.$element.data(), options);
+        if (this.options.type) {
+            this.options[this.options.type] = this.options.type;
+        }
+    }
+
+    Validate.prototype = {
+        constructor: Validate,
+
+        checkValidity: function (skipAjax) {
+            var options = this.options,
+                defaults = $.fn.validate.defaults,
+                that = this,
+                value = that.$element.val(),
+                type,
+                i,
+                len,
+                xhr,
+                data;
+
+            for (i = 0, len = defaults.pattern.length; i < len; i += 1) {
+                type = defaults.pattern[i];
+
+                if (options.hasOwnProperty(type)) {
+                    if (!defaults.regexp[type].test(value, options[type])) {
+
+                        return options[type + 'Message'] ||
+                            options.message ||
+                            defaults.message[type];
+                    }
+                }
+            }
+
+            if (options.hasOwnProperty('pattern')) {
+                if (typeof options.pattern === 'string') {
+                    options.pattern = new RegExp(options.pattern);
+                }
+
+                if (!options.pattern.test(value)) {
+
+                    return options[type + 'Message'] ||
+                        options.message ||
+                        defaults.message[type];
+                }
+            }
+
+            // 当需要ajax验证时，需要根据validate和validated事件自己确定是否验证成功
+            // 如果返回值不存在status属性，则需要覆盖.data('ajax-result')
+            if (options.hasOwnProperty('ajax')) {
+                if (skipAjax) {
+                    return that.$element.data('ajax-result') || true;
+                } else {
+                    xhr = that.$element.data('xhr');
+                    if (xhr) {
+                        xhr.abort();
+                    }
+                 
+                    data = {};
+                    data[that.$element.attr('name')] = that.$element.val();
+
+                    that.$element.data('ajax-result', false);
+                    that.$element.publish('validate.ajax');
+                    xhr = $.getJSON(options.ajax, data).done(function (response) {
+                        if (data.status === 'success') {
+                            that.$element.data('ajax-result', true);
+                        }
+                        that.$element.publish('validated.ajax', response);
+                    });
+                    that.$element.data('xhr', xhr);
+                    //return false;
+                }
+            }
+
+            return true;
+        }
+    };
+
+    $.fn.validate = function (option) {
+        return this.each(function () {
+            var $this = $(this),
+                data,
+                options;
+
+            if (!$this.is('input[data-toggle=validate],textarea[data-toggle=validate]') ||
+                    $this.data('toggle') !== 'validate') {
+                return;
+            }
+
+            data = $this.data('validate');
+            options = $.isPlainObject(option) && option;
+
+            if (!data) {
+                data = new Validate(this, options);
+                $this.data('validate', data);
+            }
+
+            if (typeof option === 'string') {
+                data[option]();
+            }
+        });
+    };
+
+    $.fn.validate.defaults = {
+        pattern: ['required', 'phone', 'email', 'number', 'minSize', 'maxSize'],
+        regexp: {
+            required: /^[\s\S]+$/,
+            phone: /^1\d{10}$/,
+            email: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
+            number: /^-?\d+$/,
+            minSize: {
+                test: function (value, min) {
+                    value = value || '';
+                    if (min === undefined) {
+                        min = Number.MIN_VALUE;
+                    } else {
+                        min = Number(min);
+                    }
+                 
+                    return value.length >= min;
+                }
+            },
+            maxSize: {
+                test: function (value, max) {
+                    value = value || '';
+                 
+                    if (max === undefined) {
+                        max = Number.MAX_VALUE;
+                    } else {
+                        max = Number(max);
+                    }
+                 
+                    return value.length <= max;
+                }
+            }
+        },
+
+        message: {
+            required: '必填',
+            phone: '电话号码格式不对',
+            email: '电子邮箱格式不对',
+            number: '应填数字'
+        }
+    };
+
+    $(document).delegate('input[data-toggle=validate],textarea[data-toggle=validate]',
+            'focus', function () {
+
+        var $this = $(this);
+            
+        if ($this.data('validate')) {
+            return;
+        }
+
+        $this.validate();
+    });
+}(this, jQuery, document));
+/*[/static/bui/mtn/helper.js]*/
+(function (global, $, document, undefined) {
+    'use strict';
+
+    function getSelector($this) {
+        var selector = $this.attr('data-target') || $this.attr('href');
+
+        // 去除#号前面的任意字符，for IE7
+        if (selector) {
+            selector = selector.replace(/.*(?=#[\S]+$)/, '');
+        }
+
+        return selector;
+    }
+
+
+    function getTarget($this) {
+        var $target = $(getSelector($this));
+        
+        return $target.length ? $target : null;
+    }
+
+    /**
+     * 获取页面实际宽度
+     * @method getScrollWidth
+     * @return {Number} 页面实际宽度
+     */
+    function getScrollWidth() {
+        return Math.max(document.documentElement.clientWidth, document.body.scrollWidth);
+    }
+
+    /**
+     * 获取页面实际高度
+     * @method getScrollHeight
+     * @return {Number} 页面实际高度
+     */
+    function getScrollHeight() {
+        return Math.max(document.documentElement.clientHeight, document.body.scrollHeight);
+    }
+
+    function getContentWidth() {
+        // IE 8 标准模式
+        if (document.compatMode === 'CSS1Compat') {
+            return document.documentElement.clientWidth;
+        }
+
+        // IE 8 怪异模式
+        return document.body.clientWidth;
+    }
+
+    function getViewportWidth() {
+        if (global.innerWidth) {
+            return global.innerWidth;
+        }
+
+        // IE 8 标准模式
+        if (document.compatMode === 'CSS1Compat') {
+            return document.documentElement.offsetWidth;
+        }
+
+        // IE 8 怪异模式
+        return document.body.clientWidth;
+    }
+
+    /**
+     * 获取滚动条宽度
+     */
+    function getScrollBarWidth() {
+        return getViewportWidth() - getContentWidth();
+    }
+
+    function loadStyleString(css) {
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        try {
+            style.appendChild(document.createTextNode(css));
+        } catch (ex) {
+            style.styleSheet.cssText = css;
+        }
+        document.getElementsByTagName('head')[0].appendChild(style);
+        return style;
+    }
+
+    $.mtn = $.mtn || {};
+
+    $.mtn.helper = {
+        //getViewportWidth: getViewportWidth,
+        //getContentWidth: getContentWidth,
+        getSelector: getSelector,
+        getTarget: getTarget,
+        getScrollWidth: getScrollWidth,
+        getScrollHeight: getScrollHeight,
+        getScrollBarWidth: getScrollBarWidth,
+        loadStyleString: loadStyleString,
+		/*
+		 * 生成伪GUID http://baike.baidu.com/view/185358.htm 利用random随机数
+         * IE下不符合此规则
+		 */
+		guid : function() {
+			var tmpl = Math.random().toString(31).substr(2, 32);
+			return tmpl.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, '$1-$2-$3-$4-$5');
+		}
+    };
+
+}(this, this.jQuery || this.Zepto, this.document));
+/*[/static/bui/mtn/overlay.js]*/
+/**
+ * overlay.js
+ */
+
+(function (global, $, document, undefined) {
+    var helper = $.mtn.helper;
+
+    function getOverlayIn() {
+        var barWidth = 'barWidth',
+            overlayIn = 'html.overlay-in{overflow:hidden;padding-right:' + barWidth + 'px;width:auto;}';
+        return overlayIn.replace(barWidth, helper.getScrollBarWidth());
+    }
+
+    function getOverlay(overlay) {
+        // 借壳
+        var $overlay = $('.bui-popup-overlay.in:visible');
+
+        if (!$overlay.length) {
+            $overlay = $(overlay);
+        }
+
+        return $overlay;
+    }
+
+    function Overlay(selector, options) {
+        options = $.extend({}, $.fn.overlay.defaults, options);
+
+        this.options = options;
+
+        this.$overlay = getOverlay(options.template);
+
+        this.$element = $(selector);
+
+        if (options.onshow) {
+            this.$element.bind('show', options.onshow);
+        }
+        if (options.onshown) {
+            this.$element.bind('shown', options.onshown);
+        }
+        if (options.onclose) {
+            this.$element.bind('close', options.onclose);
+        }
+        if (options.onclosed) {
+            this.$element.bind('closed', options.onclosed);
+        }
+    }
+
+    Overlay.prototype = {
+        constructor: Overlay,
+
+        show: function () {
+            var $html,
+                $overlay = this.$overlay,
+                $element,
+                $close,
+                options,
+                e;
+
+            // 尝试对已存在overlay关闭
+            if ($.contains(document.body, $overlay[0])) {
+                $element = $overlay.find('.bui-popup-dialog').children().last();
+                if ($element.data('overlay')) {
+                    $element.data('overlay').empty();
+                }
+
+                if ($.contains($overlay[0], $element[0])) {
+                    return;
+                }
+            }
+
+            $html = $(document.documentElement);
+            $element = this.$element;
+            $close;
+            options = this.options;
+            e = $.Event('show');
+
+            $element.trigger(e);
+
+            if (e.isDefaultPrevented()) {
+                return;
+            }
+
+            if (options.overlayClick) {
+                $overlay.data('overlayClick', true);
+            }
+
+            // overlay-in CSS类，动态生成
+            if (!$html.hasClass('overlay-in')) {
+                this.overlayIn = helper.loadStyleString(getOverlayIn());
+                $html.addClass('overlay-in');
+            }
+
+            if (!$element.find('.bui-close').length) {
+                $close = $(options.close);
+                $overlay.find('.bui-popup-dialog').append($close);
+            }
+            $overlay.find('.bui-popup-dialog').append(this.$element);
+
+            function addElement() {
+                var e = $.Event('shown');
+                $element.trigger(e);
+            }
+
+            if (!$.contains(document.body, $overlay[0])) {
+                $(document.body).append($overlay);
+                $overlay[0].offsetWidth;
+                if ($.support.transitionend) {
+                    $overlay.one($.support.transitionend, addElement);
+                    $overlay.addClass('in');
+                } else {
+                    $overlay.addClass('in');
+                    addElement();
+                }
+            } else {
+                addElement();
+            }
+        },
+
+        empty: function () {
+            var $element = this.$element,
+                overlayIn = this.overlayIn;
+
+            e = $.Event('close');
+            $element.trigger(e);
+
+            if (e.isDefaultPrevented()) {
+                return;
+            }
+
+            e = $.Event('closed');
+            $element.trigger(e);
+            $element.remove();
+        },
+
+        close: function (e) {
+            var $overlay,
+                $element,
+                overlayIn;
+
+            if (this instanceof Overlay) {
+                $overlay = this.$overlay;
+                $element = this.$element;
+                overlayIn = this.overlayIn;
+            } else if (e) {
+                e.preventDefault();
+                $overlay = $(this).closest('.bui-popup-overlay');
+                //$element = $($overlay.find('.bui-popup-dialog')[0].firstChild);
+                $element = $overlay.find('.bui-popup-dialog').children().last();
+                if ($element.data('overlay')) {
+                    $element.data('overlay').close();
+                    return;
+                }
+            }
+
+            e = $.Event('close');
+            $element.trigger(e);
+
+            if (e.isDefaultPrevented()) {
+                return;
+            }
+
+            function removeElement() {
+                var e = $.Event('closed');
+                $element.trigger(e);
+                $overlay.remove();
+                $(document.documentElement).removeClass('overlay-in');
+                if (overlayIn) {
+                    overlayIn.parentNode.removeChild(overlayIn);
+                }
+            }
+
+            if ($.support.transitionend) {
+                $overlay.one($.support.transitionend, removeElement);
+                $overlay.removeClass('in');
+            } else {
+                removeElement();
+            }
+        }
+    };
+
+    $.fn.overlay = function (option) {
+        option = option || 'show';
+
+        return this.each(function () {
+            var $this = $(this),
+                data = $this.data('overlay'),
+                options;
+
+            if ($.isPlainObject(option)) {
+                options = option;
+                option = 'show';
+            }
+
+            if (!data) {
+                data = new Overlay($this, options);
+                $this.data('overlay', data);
+            }
+
+            if (typeof option === 'string') {
+                data[option]();
+            }
+        });
+    };
+
+    $.fn.overlay.defaults = {
+        template: '<div class="bui-popup-overlay"><div class="bui-popup-dialog"></div><span class="bui-popup-align"></span></div>',
+        close: '<button class="bui-close" hidefocus="hidefocus" data-toggle="close.overlay"></button>',
+        loading: '<div class="loading"></div>',
+        onshow: null,
+        onshown: null,
+        onclose: null,
+        onclosed: null
+            
+    };
+
+    $.fn.overlay.Constructor = Overlay;
+
+    $(document).delegate('[data-toggle="show.overlay"]', 'click', function () {
+        var $this = $(this),
+            $target = helper.getTarget($this),
+            url = $this.data('url') || $this.attr('href'),
+            options = $this.data();
+
+        if ($target) {
+            $($.trim($target.html())).overlay(options);
+        } else if(url) {
+            $($.fn.overlay.defaults.loading).overlay();
+            $.get(url, function (data) {
+                $($.trim(data)).overlay(options);
+            });
+        }
+
+        return false;
+    });
+
+    //$(document).delegate('[data-toggle="close.overlay"]', 'click', Overlay.prototype.close);
+
+    $(document).delegate('.bui-popup-overlay', 'click', function (e) {
+        var target = e.target,
+            current = e.currentTarget;
+
+        if (target.getAttribute('data-toggle') === 'close.overlay' ||
+                // <a data-toggle="close.overlay"><span>close</span></a>
+                $(target).closest('[data-toggle="close.overlay"]').length ||
+                (current === target && $(current).data('overlayClick'))) {
+
+            Overlay.prototype.close.call(this, e);
+        }
+    });
+}(this, this.jQuery, this.document));
+/*[/static/bui/mtn/date/dateSelector.js]*/
+/**
+ * Date Selector
+ * -------------
+ * Date Selector组的select元素的mouseenter事件触发实例化。
+ * 将实例化后的对象存储在.data-selector元素上
+ * 备注：
+ * 绑定在mouseenter是为了当用户触发其他可能的操作（click，focus）之前将数据准备好
+ */
+(function (global, $) {
+    "use strict";
+
+    var document = global.document;
+
+    function DateSelector(selector, options) {
+        var $element = $(selector);
+
+        this.$element = $element;
+        this.options = $.extend({}, $.fn.dateSelector.defaults, options);
+
+        this.$year = $element.find("select[data-toggle=date-selector-year]");
+        this.$month = $element.find("select[data-toggle=date-selector-month]");
+        this.$date = $element.find("select[data-toggle=date-selector-date]");
+
+        this.refresh();
+
+        if (this.$year.length && this.$date.length) {
+            //this.$year.on("change.dateSelector", $.proxy(this.date, this));
+            this.$year.bind("change.dateSelector", $.proxy(this.date, this));
+        }
+
+        if (this.$month.length && this.$date.length) {
+            //this.$month.on("change.dateSelector", $.proxy(this.date, this));
+            this.$month.bind("change.dateSelector", $.proxy(this.date, this));
+        }
+
+    }
+
+    DateSelector.prototype = {
+        constructor: DateSelector,
+
+        /*
+         * 刷新年选择框
+         */
+        refreshYear: function (year) {
+            var years = [],
+                start = this.options.start || year - this.options.delta,
+                end = this.options.end || +year + this.options.delta,
+                i;
+
+            for (i = end; i >= start; i -= 1) {
+                if (i === +year) {
+                    years.push("<option selected>" + i + "</option>");
+                } else {
+                    years.push("<option>" + i + "</option>");
+                }
+            }
+
+            this.$year.html(years.join(""));
+            //this.setYear(year);
+        },
+
+        /*
+         * 设置年，并
+         */
+        setYear: function (year) {
+            var that = this;
+            if (this.$year.length) {
+                that.$year.val(year);
+                /*
+                setTimeout(function () {
+                    that.$year.val(year);
+                }, 0);
+                */
+            } else if (this.$month.length) {
+                this.$month.data("year", year).trigger("change.dateSelector");
+            }
+        },
+
+        getYear: function () {
+            return parseInt(this.$year.val() || this.$month.data("year"), 10);
+        },
+
+        /*
+         * 刷新月选择框
+         */
+        refreshMonth: function (month) {
+            var months = [],
+                start = 1,
+                end = 12,
+                i;
+
+            for (i = start; i <= end; i += 1) {
+                if (i === +month) {
+                    months.push("<option selected>" + i + "</option>");
+                } else {
+                    months.push("<option>" + i + "</option>");
+                }
+            }
+
+            this.$month.html(months.join(""));
+            //this.setMonth(month);
+        },
+
+        setMonth: function (month) {
+            var that = this;
+            that.$month.val(month);
+            /*
+            setTimeout(function () {
+                that.$month.val(month);
+            }, 0);
+            */
+        },
+
+        getMonth: function () {
+            return parseInt(this.$month.val(), 10);
+        },
+
+        /*
+         * 刷新日选择框
+         */
+        refreshDate: function (date) {
+            var dates = [],
+                start = 1,
+                end,
+                i;
+
+            switch (+this.getMonth()) {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                end = 31;
+                break;
+
+            case 2:
+                end = this.isLeapYear() ? 29 : 28;
+                break;
+
+            default:
+                end = 30;
+                break;
+            }
+
+            for (i = start; i <= end; i += 1) {
+                if (i === +date) {
+                    dates.push("<option selected>" + i + "</option>");
+                } else {
+                    dates.push("<option>" + i + "</option>");
+                }
+            }
+            this.$date.html(dates.join(""));
+            //this.setDate(date);
+        },
+
+        setDate: function (date) {
+            var that = this;
+            that.$date.val(date);
+            /*
+            setTimeout(function () {
+                that.$date.val(date);
+            }, 0);
+            */
+        },
+
+        getDate: function () {
+            return parseInt(this.$date.val(), 10);
+        },
+
+        refresh: function () {
+            var start,
+                end;
+            if (this.$year.length) {
+                start = this.$year.data("start");
+                if (start) {
+                    start = parseInt(start, 10);
+                    //start = Math.min(start, this.getYear());
+                    this.options.start = start;
+                }
+         
+                end = this.$year.data("end");
+                if (end) {
+                    end = parseInt(end, 10);
+                    //end = Math.max(end, this.getYear());
+                    this.options.end = end;
+                }
+            }
+         
+            if (!this.$year.length && !this.$month.data("year")) {
+                this.$month.data("year", new Date().getFullYear());
+            }
+
+            this.refreshYear(this.getYear());
+            this.refreshMonth(this.getMonth());
+            this.refreshDate(this.getDate());
+        },
+
+        // data: yyyy/M/dd
+        set: function (date) {
+            var parts = date.split("/");
+
+            this.setYear(parts[0]);
+            this.setMonth(parts[1]);
+            if (parts[2]) {
+                this.setDate(parts[2]);
+            }
+        },
+
+        isLeapYear: function () {
+            var year = this.getYear();
+            return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+        },
+
+        get: function () {
+            return this.getYear() + '/' + this.getMonth() + '/' + this.getDate();
+        },
+
+        date: function () {
+            this.refreshDate(this.getDate());
+        }
+    };
+
+    $.fn.dateSelector = function (option, date) {
+        return this.each(function () {
+            var $this = $(this),
+                $target = $this.closest(".date-selector, [data-toggle=date-selector]"),
+                data = $target.data("dateSelector"),
+                options;
+
+            if (!data) {
+                if ($.isPlainObject(option)) {
+                    options = option;
+                }
+                data = new DateSelector($target, options);
+                $target.data("dateSelector", data);
+            }
+
+            if (typeof option === "string") {
+                data[option](date);
+            }
+        });
+    };
+
+    $.fn.dateSelector.Constructor = DateSelector;
+
+    $.fn.dateSelector.defaults = {
+        delta: 6
+    };
+
+    //$(document).on("mouseenter.dateSelector.data-api", "select[data-toggle^=date-selector]", function (e) {
+    $(document).delegate("select[data-toggle^=date-selector]",
+            "mouseenter.dateSelector.data-api", function (e) {
+
+        var $this = $(this),
+            $target = $this.closest(".date-selector, [data-toggle=date-selector]");
+        if (!$target.data("dateSelector")) {
+            $target.dateSelector();
+        }
+    });
+}(this, this.jQuery));
+/*[/static/bui/extension/sso/client.js]*/
+if (typeof bui == "undefined") {
+	bui = {};
+}
+
+bui.sso = (function($) {
+	var SETTING = {
+		action : {
+			// register : 'register',
+			login : 'login',
+			logout : 'logout',
+			hasEmail : 'has_email',
+			hasNickname : 'has_nickname'
+		}
+	},
+
+	// cookie为K-V对象
+	setCookie = function(urls, data, complete, fail) {
+		var length = urls.length, actived = 0;
+		function handle() {
+			if (actived == length) {
+				if(complete) complete();
+			}
+		}
+		$.each(urls, function(index, url) {
+			$.ajax({
+				url : unescape(url) + '?jsoncallback=?',
+				timeout : 1000,
+				data : data,
+				dataType : 'jsonp',
+				success : function() {
+					actived++;
+					handle();
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+                    // 注释掉，如果需要回调fail方法，只需解开此注释
+                    // 要求：后台代码需要返回正确的JSON格式字符串
+					//fail && fail(jqXHR, textStatus, errorThrown);
+					actived++;
+					handle();
+				}
+			});
+		});
+
+		handle();
+	},
+
+	getWrapper = function(success) {
+		return function(data, textStatus, jqXHR) {
+			if (data.status == 1) {
+				var cookies = data.data.cookies ? $.extend({
+					'enc_user_id' : data.data.enc_user_id
+				}, data.data.cookies) : undefined;
+
+				setCookie(data.data.partner_urls, cookies, function() {
+					success(data, textStatus, jqXHR);
+				});
+			} else {
+				success(data, textStatus, jqXHR);
+			}
+		};
+	},
+
+	getJSON = function(data, success, fail) {
+		var baseUrl = 'https://sso.babytree.com/sso/sso.ajax.php?jsoncallback=?';
+        if (bui.sso.domain) {
+            if (bui.sso.https) {
+		        baseUrl = 'https://' + bui.sso.domain + '/sso/sso.ajax.php?jsoncallback=?';
+            } else {
+                baseUrl = 'http://' + bui.sso.domain + '/sso/sso.ajax.php?jsoncallback=?';
+            }
+        } 
+		$.ajax({
+			url : baseUrl,
+			data : data,
+			dataType : 'jsonp',
+			success : success,
+			error : fail
+		});
+	};
+
+	return {
+		hasEmail : function(email, success, fail) {
+			var data = {
+				action : SETTING.action.hasEmail,
+				email : email
+			};
+			getJSON(data, success, fail);
+		},
+		hasNickname : function(nickname, success, fail) {
+			var data = {
+				action : SETTING.action.hasNickname,
+				nickname : nickname
+			};
+			getJSON(data, success, fail);
+		},
+		/*
+		 * register : function(object, success, fail) { var data = $.extend({
+		 * action : SETTING.action.register }, object); getJSON(data,
+		 * getWrapper(success), fail); },
+		 */
+		login : function(email, password, success, fail, extraData) {
+			var data = {
+				action : SETTING.action.login,
+				email : email,
+				password : password
+			};
+            if (typeof fail === 'object' && extraData === undefined) {
+                extraData = fail;
+            }
+            $.extend(data, extraData);
+			getJSON(data, getWrapper(success), fail);
+		},
+		logout : function(success, fail) {
+			var data = {
+				action : SETTING.action.logout
+			};
+			getJSON(data, getWrapper(success), fail);
+		},
+		setLoginCookie : function(apiList, lCookie, nlCookie, success, fail) {
+			setCookie(apiList, {
+				L : lCookie,
+				NL : nlCookie
+			}, success, fail);
+		},
+		setLogoutCookie : function(apiList, success, fail) {
+			setCookie(apiList, undefined, success, fail);
+		}
+	};
+}(jQuery));
+/*[/img/ng/lib/jsencrypt/2.1.0/jsencrypt.min.js]*/
+var JSEncryptExports={};!function(a){function b(a,b,c){null!=a&&("number"==typeof a?this.fromNumber(a,b,c):null==b&&"string"!=typeof a?this.fromString(a,256):this.fromString(a,b))}function c(){return new b(null)}function d(a,b,c,d,e,f){for(;--f>=0;){var g=b*this[a++]+c[d]+e;e=Math.floor(g/67108864),c[d++]=67108863&g}return e}function e(a,b,c,d,e,f){for(var g=32767&b,h=b>>15;--f>=0;){var i=32767&this[a],j=this[a++]>>15,k=h*i+j*g;i=g*i+((32767&k)<<15)+c[d]+(1073741823&e),e=(i>>>30)+(k>>>15)+h*j+(e>>>30),c[d++]=1073741823&i}return e}function f(a,b,c,d,e,f){for(var g=16383&b,h=b>>14;--f>=0;){var i=16383&this[a],j=this[a++]>>14,k=h*i+j*g;i=g*i+((16383&k)<<14)+c[d]+e,e=(i>>28)+(k>>14)+h*j,c[d++]=268435455&i}return e}function g(a){return Bb.charAt(a)}function h(a,b){var c=Cb[a.charCodeAt(b)];return null==c?-1:c}function i(a){for(var b=this.t-1;b>=0;--b)a[b]=this[b];a.t=this.t,a.s=this.s}function j(a){this.t=1,this.s=0>a?-1:0,a>0?this[0]=a:-1>a?this[0]=a+DV:this.t=0}function k(a){var b=c();return b.fromInt(a),b}function l(a,c){var d;if(16==c)d=4;else if(8==c)d=3;else if(256==c)d=8;else if(2==c)d=1;else if(32==c)d=5;else{if(4!=c)return void this.fromRadix(a,c);d=2}this.t=0,this.s=0;for(var e=a.length,f=!1,g=0;--e>=0;){var i=8==d?255&a[e]:h(a,e);0>i?"-"==a.charAt(e)&&(f=!0):(f=!1,0==g?this[this.t++]=i:g+d>this.DB?(this[this.t-1]|=(i&(1<<this.DB-g)-1)<<g,this[this.t++]=i>>this.DB-g):this[this.t-1]|=i<<g,g+=d,g>=this.DB&&(g-=this.DB))}8==d&&0!=(128&a[0])&&(this.s=-1,g>0&&(this[this.t-1]|=(1<<this.DB-g)-1<<g)),this.clamp(),f&&b.ZERO.subTo(this,this)}function m(){for(var a=this.s&this.DM;this.t>0&&this[this.t-1]==a;)--this.t}function n(a){if(this.s<0)return"-"+this.negate().toString(a);var b;if(16==a)b=4;else if(8==a)b=3;else if(2==a)b=1;else if(32==a)b=5;else{if(4!=a)return this.toRadix(a);b=2}var c,d=(1<<b)-1,e=!1,f="",h=this.t,i=this.DB-h*this.DB%b;if(h-->0)for(i<this.DB&&(c=this[h]>>i)>0&&(e=!0,f=g(c));h>=0;)b>i?(c=(this[h]&(1<<i)-1)<<b-i,c|=this[--h]>>(i+=this.DB-b)):(c=this[h]>>(i-=b)&d,0>=i&&(i+=this.DB,--h)),c>0&&(e=!0),e&&(f+=g(c));return e?f:"0"}function o(){var a=c();return b.ZERO.subTo(this,a),a}function p(){return this.s<0?this.negate():this}function q(a){var b=this.s-a.s;if(0!=b)return b;var c=this.t;if(b=c-a.t,0!=b)return this.s<0?-b:b;for(;--c>=0;)if(0!=(b=this[c]-a[c]))return b;return 0}function r(a){var b,c=1;return 0!=(b=a>>>16)&&(a=b,c+=16),0!=(b=a>>8)&&(a=b,c+=8),0!=(b=a>>4)&&(a=b,c+=4),0!=(b=a>>2)&&(a=b,c+=2),0!=(b=a>>1)&&(a=b,c+=1),c}function s(){return this.t<=0?0:this.DB*(this.t-1)+r(this[this.t-1]^this.s&this.DM)}function t(a,b){var c;for(c=this.t-1;c>=0;--c)b[c+a]=this[c];for(c=a-1;c>=0;--c)b[c]=0;b.t=this.t+a,b.s=this.s}function u(a,b){for(var c=a;c<this.t;++c)b[c-a]=this[c];b.t=Math.max(this.t-a,0),b.s=this.s}function w(a,b){var c,d=a%this.DB,e=this.DB-d,f=(1<<e)-1,g=Math.floor(a/this.DB),h=this.s<<d&this.DM;for(c=this.t-1;c>=0;--c)b[c+g+1]=this[c]>>e|h,h=(this[c]&f)<<d;for(c=g-1;c>=0;--c)b[c]=0;b[g]=h,b.t=this.t+g+1,b.s=this.s,b.clamp()}function x(a,b){b.s=this.s;var c=Math.floor(a/this.DB);if(c>=this.t)return void(b.t=0);var d=a%this.DB,e=this.DB-d,f=(1<<d)-1;b[0]=this[c]>>d;for(var g=c+1;g<this.t;++g)b[g-c-1]|=(this[g]&f)<<e,b[g-c]=this[g]>>d;d>0&&(b[this.t-c-1]|=(this.s&f)<<e),b.t=this.t-c,b.clamp()}function y(a,b){for(var c=0,d=0,e=Math.min(a.t,this.t);e>c;)d+=this[c]-a[c],b[c++]=d&this.DM,d>>=this.DB;if(a.t<this.t){for(d-=a.s;c<this.t;)d+=this[c],b[c++]=d&this.DM,d>>=this.DB;d+=this.s}else{for(d+=this.s;c<a.t;)d-=a[c],b[c++]=d&this.DM,d>>=this.DB;d-=a.s}b.s=0>d?-1:0,-1>d?b[c++]=this.DV+d:d>0&&(b[c++]=d),b.t=c,b.clamp()}function z(a,c){var d=this.abs(),e=a.abs(),f=d.t;for(c.t=f+e.t;--f>=0;)c[f]=0;for(f=0;f<e.t;++f)c[f+d.t]=d.am(0,e[f],c,f,0,d.t);c.s=0,c.clamp(),this.s!=a.s&&b.ZERO.subTo(c,c)}function A(a){for(var b=this.abs(),c=a.t=2*b.t;--c>=0;)a[c]=0;for(c=0;c<b.t-1;++c){var d=b.am(c,b[c],a,2*c,0,1);(a[c+b.t]+=b.am(c+1,2*b[c],a,2*c+1,d,b.t-c-1))>=b.DV&&(a[c+b.t]-=b.DV,a[c+b.t+1]=1)}a.t>0&&(a[a.t-1]+=b.am(c,b[c],a,2*c,0,1)),a.s=0,a.clamp()}function B(a,d,e){var f=a.abs();if(!(f.t<=0)){var g=this.abs();if(g.t<f.t)return null!=d&&d.fromInt(0),void(null!=e&&this.copyTo(e));null==e&&(e=c());var h=c(),i=this.s,j=a.s,k=this.DB-r(f[f.t-1]);k>0?(f.lShiftTo(k,h),g.lShiftTo(k,e)):(f.copyTo(h),g.copyTo(e));var l=h.t,m=h[l-1];if(0!=m){var n=m*(1<<this.F1)+(l>1?h[l-2]>>this.F2:0),o=this.FV/n,p=(1<<this.F1)/n,q=1<<this.F2,s=e.t,t=s-l,u=null==d?c():d;for(h.dlShiftTo(t,u),e.compareTo(u)>=0&&(e[e.t++]=1,e.subTo(u,e)),b.ONE.dlShiftTo(l,u),u.subTo(h,h);h.t<l;)h[h.t++]=0;for(;--t>=0;){var v=e[--s]==m?this.DM:Math.floor(e[s]*o+(e[s-1]+q)*p);if((e[s]+=h.am(0,v,e,t,0,l))<v)for(h.dlShiftTo(t,u),e.subTo(u,e);e[s]<--v;)e.subTo(u,e)}null!=d&&(e.drShiftTo(l,d),i!=j&&b.ZERO.subTo(d,d)),e.t=l,e.clamp(),k>0&&e.rShiftTo(k,e),0>i&&b.ZERO.subTo(e,e)}}}function C(a){var d=c();return this.abs().divRemTo(a,null,d),this.s<0&&d.compareTo(b.ZERO)>0&&a.subTo(d,d),d}function D(a){this.m=a}function E(a){return a.s<0||a.compareTo(this.m)>=0?a.mod(this.m):a}function F(a){return a}function G(a){a.divRemTo(this.m,null,a)}function H(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function I(a,b){a.squareTo(b),this.reduce(b)}function J(){if(this.t<1)return 0;var a=this[0];if(0==(1&a))return 0;var b=3&a;return b=b*(2-(15&a)*b)&15,b=b*(2-(255&a)*b)&255,b=b*(2-((65535&a)*b&65535))&65535,b=b*(2-a*b%this.DV)%this.DV,b>0?this.DV-b:-b}function K(a){this.m=a,this.mp=a.invDigit(),this.mpl=32767&this.mp,this.mph=this.mp>>15,this.um=(1<<a.DB-15)-1,this.mt2=2*a.t}function L(a){var d=c();return a.abs().dlShiftTo(this.m.t,d),d.divRemTo(this.m,null,d),a.s<0&&d.compareTo(b.ZERO)>0&&this.m.subTo(d,d),d}function M(a){var b=c();return a.copyTo(b),this.reduce(b),b}function N(a){for(;a.t<=this.mt2;)a[a.t++]=0;for(var b=0;b<this.m.t;++b){var c=32767&a[b],d=c*this.mpl+((c*this.mph+(a[b]>>15)*this.mpl&this.um)<<15)&a.DM;for(c=b+this.m.t,a[c]+=this.m.am(0,d,a,b,0,this.m.t);a[c]>=a.DV;)a[c]-=a.DV,a[++c]++}a.clamp(),a.drShiftTo(this.m.t,a),a.compareTo(this.m)>=0&&a.subTo(this.m,a)}function O(a,b){a.squareTo(b),this.reduce(b)}function P(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function Q(){return 0==(this.t>0?1&this[0]:this.s)}function R(a,d){if(a>4294967295||1>a)return b.ONE;var e=c(),f=c(),g=d.convert(this),h=r(a)-1;for(g.copyTo(e);--h>=0;)if(d.sqrTo(e,f),(a&1<<h)>0)d.mulTo(f,g,e);else{var i=e;e=f,f=i}return d.revert(e)}function S(a,b){var c;return c=256>a||b.isEven()?new D(b):new K(b),this.exp(a,c)}function T(){var a=c();return this.copyTo(a),a}function U(){if(this.s<0){if(1==this.t)return this[0]-this.DV;if(0==this.t)return-1}else{if(1==this.t)return this[0];if(0==this.t)return 0}return(this[1]&(1<<32-this.DB)-1)<<this.DB|this[0]}function V(){return 0==this.t?this.s:this[0]<<24>>24}function W(){return 0==this.t?this.s:this[0]<<16>>16}function X(a){return Math.floor(Math.LN2*this.DB/Math.log(a))}function Y(){return this.s<0?-1:this.t<=0||1==this.t&&this[0]<=0?0:1}function Z(a){if(null==a&&(a=10),0==this.signum()||2>a||a>36)return"0";var b=this.chunkSize(a),d=Math.pow(a,b),e=k(d),f=c(),g=c(),h="";for(this.divRemTo(e,f,g);f.signum()>0;)h=(d+g.intValue()).toString(a).substr(1)+h,f.divRemTo(e,f,g);return g.intValue().toString(a)+h}function $(a,c){this.fromInt(0),null==c&&(c=10);for(var d=this.chunkSize(c),e=Math.pow(c,d),f=!1,g=0,i=0,j=0;j<a.length;++j){var k=h(a,j);0>k?"-"==a.charAt(j)&&0==this.signum()&&(f=!0):(i=c*i+k,++g>=d&&(this.dMultiply(e),this.dAddOffset(i,0),g=0,i=0))}g>0&&(this.dMultiply(Math.pow(c,g)),this.dAddOffset(i,0)),f&&b.ZERO.subTo(this,this)}function _(a,c,d){if("number"==typeof c)if(2>a)this.fromInt(1);else for(this.fromNumber(a,d),this.testBit(a-1)||this.bitwiseTo(b.ONE.shiftLeft(a-1),ha,this),this.isEven()&&this.dAddOffset(1,0);!this.isProbablePrime(c);)this.dAddOffset(2,0),this.bitLength()>a&&this.subTo(b.ONE.shiftLeft(a-1),this);else{var e=new Array,f=7&a;e.length=(a>>3)+1,c.nextBytes(e),f>0?e[0]&=(1<<f)-1:e[0]=0,this.fromString(e,256)}}function aa(){var a=this.t,b=new Array;b[0]=this.s;var c,d=this.DB-a*this.DB%8,e=0;if(a-->0)for(d<this.DB&&(c=this[a]>>d)!=(this.s&this.DM)>>d&&(b[e++]=c|this.s<<this.DB-d);a>=0;)8>d?(c=(this[a]&(1<<d)-1)<<8-d,c|=this[--a]>>(d+=this.DB-8)):(c=this[a]>>(d-=8)&255,0>=d&&(d+=this.DB,--a)),0!=(128&c)&&(c|=-256),0==e&&(128&this.s)!=(128&c)&&++e,(e>0||c!=this.s)&&(b[e++]=c);return b}function ba(a){return 0==this.compareTo(a)}function ca(a){return this.compareTo(a)<0?this:a}function da(a){return this.compareTo(a)>0?this:a}function ea(a,b,c){var d,e,f=Math.min(a.t,this.t);for(d=0;f>d;++d)c[d]=b(this[d],a[d]);if(a.t<this.t){for(e=a.s&this.DM,d=f;d<this.t;++d)c[d]=b(this[d],e);c.t=this.t}else{for(e=this.s&this.DM,d=f;d<a.t;++d)c[d]=b(e,a[d]);c.t=a.t}c.s=b(this.s,a.s),c.clamp()}function fa(a,b){return a&b}function ga(a){var b=c();return this.bitwiseTo(a,fa,b),b}function ha(a,b){return a|b}function ia(a){var b=c();return this.bitwiseTo(a,ha,b),b}function ja(a,b){return a^b}function ka(a){var b=c();return this.bitwiseTo(a,ja,b),b}function la(a,b){return a&~b}function ma(a){var b=c();return this.bitwiseTo(a,la,b),b}function na(){for(var a=c(),b=0;b<this.t;++b)a[b]=this.DM&~this[b];return a.t=this.t,a.s=~this.s,a}function oa(a){var b=c();return 0>a?this.rShiftTo(-a,b):this.lShiftTo(a,b),b}function pa(a){var b=c();return 0>a?this.lShiftTo(-a,b):this.rShiftTo(a,b),b}function qa(a){if(0==a)return-1;var b=0;return 0==(65535&a)&&(a>>=16,b+=16),0==(255&a)&&(a>>=8,b+=8),0==(15&a)&&(a>>=4,b+=4),0==(3&a)&&(a>>=2,b+=2),0==(1&a)&&++b,b}function ra(){for(var a=0;a<this.t;++a)if(0!=this[a])return a*this.DB+qa(this[a]);return this.s<0?this.t*this.DB:-1}function sa(a){for(var b=0;0!=a;)a&=a-1,++b;return b}function ta(){for(var a=0,b=this.s&this.DM,c=0;c<this.t;++c)a+=sa(this[c]^b);return a}function ua(a){var b=Math.floor(a/this.DB);return b>=this.t?0!=this.s:0!=(this[b]&1<<a%this.DB)}function va(a,c){var d=b.ONE.shiftLeft(a);return this.bitwiseTo(d,c,d),d}function wa(a){return this.changeBit(a,ha)}function xa(a){return this.changeBit(a,la)}function ya(a){return this.changeBit(a,ja)}function za(a,b){for(var c=0,d=0,e=Math.min(a.t,this.t);e>c;)d+=this[c]+a[c],b[c++]=d&this.DM,d>>=this.DB;if(a.t<this.t){for(d+=a.s;c<this.t;)d+=this[c],b[c++]=d&this.DM,d>>=this.DB;d+=this.s}else{for(d+=this.s;c<a.t;)d+=a[c],b[c++]=d&this.DM,d>>=this.DB;d+=a.s}b.s=0>d?-1:0,d>0?b[c++]=d:-1>d&&(b[c++]=this.DV+d),b.t=c,b.clamp()}function Aa(a){var b=c();return this.addTo(a,b),b}function Ba(a){var b=c();return this.subTo(a,b),b}function Ca(a){var b=c();return this.multiplyTo(a,b),b}function Da(){var a=c();return this.squareTo(a),a}function Ea(a){var b=c();return this.divRemTo(a,b,null),b}function Fa(a){var b=c();return this.divRemTo(a,null,b),b}function Ga(a){var b=c(),d=c();return this.divRemTo(a,b,d),new Array(b,d)}function Ha(a){this[this.t]=this.am(0,a-1,this,0,0,this.t),++this.t,this.clamp()}function Ia(a,b){if(0!=a){for(;this.t<=b;)this[this.t++]=0;for(this[b]+=a;this[b]>=this.DV;)this[b]-=this.DV,++b>=this.t&&(this[this.t++]=0),++this[b]}}function Ja(){}function Ka(a){return a}function La(a,b,c){a.multiplyTo(b,c)}function Ma(a,b){a.squareTo(b)}function Na(a){return this.exp(a,new Ja)}function Oa(a,b,c){var d=Math.min(this.t+a.t,b);for(c.s=0,c.t=d;d>0;)c[--d]=0;var e;for(e=c.t-this.t;e>d;++d)c[d+this.t]=this.am(0,a[d],c,d,0,this.t);for(e=Math.min(a.t,b);e>d;++d)this.am(0,a[d],c,d,0,b-d);c.clamp()}function Pa(a,b,c){--b;var d=c.t=this.t+a.t-b;for(c.s=0;--d>=0;)c[d]=0;for(d=Math.max(b-this.t,0);d<a.t;++d)c[this.t+d-b]=this.am(b-d,a[d],c,0,0,this.t+d-b);c.clamp(),c.drShiftTo(1,c)}function Qa(a){this.r2=c(),this.q3=c(),b.ONE.dlShiftTo(2*a.t,this.r2),this.mu=this.r2.divide(a),this.m=a}function Ra(a){if(a.s<0||a.t>2*this.m.t)return a.mod(this.m);if(a.compareTo(this.m)<0)return a;var b=c();return a.copyTo(b),this.reduce(b),b}function Sa(a){return a}function Ta(a){for(a.drShiftTo(this.m.t-1,this.r2),a.t>this.m.t+1&&(a.t=this.m.t+1,a.clamp()),this.mu.multiplyUpperTo(this.r2,this.m.t+1,this.q3),this.m.multiplyLowerTo(this.q3,this.m.t+1,this.r2);a.compareTo(this.r2)<0;)a.dAddOffset(1,this.m.t+1);for(a.subTo(this.r2,a);a.compareTo(this.m)>=0;)a.subTo(this.m,a)}function Ua(a,b){a.squareTo(b),this.reduce(b)}function Va(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function Wa(a,b){var d,e,f=a.bitLength(),g=k(1);if(0>=f)return g;d=18>f?1:48>f?3:144>f?4:768>f?5:6,e=8>f?new D(b):b.isEven()?new Qa(b):new K(b);var h=new Array,i=3,j=d-1,l=(1<<d)-1;if(h[1]=e.convert(this),d>1){var m=c();for(e.sqrTo(h[1],m);l>=i;)h[i]=c(),e.mulTo(m,h[i-2],h[i]),i+=2}var n,o,p=a.t-1,q=!0,s=c();for(f=r(a[p])-1;p>=0;){for(f>=j?n=a[p]>>f-j&l:(n=(a[p]&(1<<f+1)-1)<<j-f,p>0&&(n|=a[p-1]>>this.DB+f-j)),i=d;0==(1&n);)n>>=1,--i;if((f-=i)<0&&(f+=this.DB,--p),q)h[n].copyTo(g),q=!1;else{for(;i>1;)e.sqrTo(g,s),e.sqrTo(s,g),i-=2;i>0?e.sqrTo(g,s):(o=g,g=s,s=o),e.mulTo(s,h[n],g)}for(;p>=0&&0==(a[p]&1<<f);)e.sqrTo(g,s),o=g,g=s,s=o,--f<0&&(f=this.DB-1,--p)}return e.revert(g)}function Xa(a){var b=this.s<0?this.negate():this.clone(),c=a.s<0?a.negate():a.clone();if(b.compareTo(c)<0){var d=b;b=c,c=d}var e=b.getLowestSetBit(),f=c.getLowestSetBit();if(0>f)return b;for(f>e&&(f=e),f>0&&(b.rShiftTo(f,b),c.rShiftTo(f,c));b.signum()>0;)(e=b.getLowestSetBit())>0&&b.rShiftTo(e,b),(e=c.getLowestSetBit())>0&&c.rShiftTo(e,c),b.compareTo(c)>=0?(b.subTo(c,b),b.rShiftTo(1,b)):(c.subTo(b,c),c.rShiftTo(1,c));return f>0&&c.lShiftTo(f,c),c}function Ya(a){if(0>=a)return 0;var b=this.DV%a,c=this.s<0?a-1:0;if(this.t>0)if(0==b)c=this[0]%a;else for(var d=this.t-1;d>=0;--d)c=(b*c+this[d])%a;return c}function Za(a){var c=a.isEven();if(this.isEven()&&c||0==a.signum())return b.ZERO;for(var d=a.clone(),e=this.clone(),f=k(1),g=k(0),h=k(0),i=k(1);0!=d.signum();){for(;d.isEven();)d.rShiftTo(1,d),c?(f.isEven()&&g.isEven()||(f.addTo(this,f),g.subTo(a,g)),f.rShiftTo(1,f)):g.isEven()||g.subTo(a,g),g.rShiftTo(1,g);for(;e.isEven();)e.rShiftTo(1,e),c?(h.isEven()&&i.isEven()||(h.addTo(this,h),i.subTo(a,i)),h.rShiftTo(1,h)):i.isEven()||i.subTo(a,i),i.rShiftTo(1,i);d.compareTo(e)>=0?(d.subTo(e,d),c&&f.subTo(h,f),g.subTo(i,g)):(e.subTo(d,e),c&&h.subTo(f,h),i.subTo(g,i))}return 0!=e.compareTo(b.ONE)?b.ZERO:i.compareTo(a)>=0?i.subtract(a):i.signum()<0?(i.addTo(a,i),i.signum()<0?i.add(a):i):i}function $a(a){var b,c=this.abs();if(1==c.t&&c[0]<=Db[Db.length-1]){for(b=0;b<Db.length;++b)if(c[0]==Db[b])return!0;return!1}if(c.isEven())return!1;for(b=1;b<Db.length;){for(var d=Db[b],e=b+1;e<Db.length&&Eb>d;)d*=Db[e++];for(d=c.modInt(d);e>b;)if(d%Db[b++]==0)return!1}return c.millerRabin(a)}function _a(a){var d=this.subtract(b.ONE),e=d.getLowestSetBit();if(0>=e)return!1;var f=d.shiftRight(e);a=a+1>>1,a>Db.length&&(a=Db.length);for(var g=c(),h=0;a>h;++h){g.fromInt(Db[Math.floor(Math.random()*Db.length)]);var i=g.modPow(f,this);if(0!=i.compareTo(b.ONE)&&0!=i.compareTo(d)){for(var j=1;j++<e&&0!=i.compareTo(d);)if(i=i.modPowInt(2,this),0==i.compareTo(b.ONE))return!1;if(0!=i.compareTo(d))return!1}}return!0}function ab(){this.i=0,this.j=0,this.S=new Array}function bb(a){var b,c,d;for(b=0;256>b;++b)this.S[b]=b;for(c=0,b=0;256>b;++b)c=c+this.S[b]+a[b%a.length]&255,d=this.S[b],this.S[b]=this.S[c],this.S[c]=d;this.i=0,this.j=0}function cb(){var a;return this.i=this.i+1&255,this.j=this.j+this.S[this.i]&255,a=this.S[this.i],this.S[this.i]=this.S[this.j],this.S[this.j]=a,this.S[a+this.S[this.i]&255]}function db(){return new ab}function eb(){if(null==Fb){for(Fb=db();Ib>Hb;){var a=Math.floor(65536*Math.random());Gb[Hb++]=255&a}for(Fb.init(Gb),Hb=0;Hb<Gb.length;++Hb)Gb[Hb]=0;Hb=0}return Fb.next()}function fb(a){var b;for(b=0;b<a.length;++b)a[b]=eb()}function gb(){}function hb(a,c){return new b(a,c)}function ib(a,c){if(c<a.length+11)return console.error("Message too long for RSA"),null;for(var d=new Array,e=a.length-1;e>=0&&c>0;){var f=a.charCodeAt(e--);128>f?d[--c]=f:f>127&&2048>f?(d[--c]=63&f|128,d[--c]=f>>6|192):(d[--c]=63&f|128,d[--c]=f>>6&63|128,d[--c]=f>>12|224)}d[--c]=0;for(var g=new gb,h=new Array;c>2;){for(h[0]=0;0==h[0];)g.nextBytes(h);d[--c]=h[0]}return d[--c]=2,d[--c]=0,new b(d)}function jb(){this.n=null,this.e=0,this.d=null,this.p=null,this.q=null,this.dmp1=null,this.dmq1=null,this.coeff=null}function kb(a,b){null!=a&&null!=b&&a.length>0&&b.length>0?(this.n=hb(a,16),this.e=parseInt(b,16)):console.error("Invalid RSA public key")}function lb(a){return a.modPowInt(this.e,this.n)}function mb(a){var b=ib(a,this.n.bitLength()+7>>3);if(null==b)return null;var c=this.doPublic(b);if(null==c)return null;var d=c.toString(16);return 0==(1&d.length)?d:"0"+d}function nb(a,b){for(var c=a.toByteArray(),d=0;d<c.length&&0==c[d];)++d;if(c.length-d!=b-1||2!=c[d])return null;for(++d;0!=c[d];)if(++d>=c.length)return null;for(var e="";++d<c.length;){var f=255&c[d];128>f?e+=String.fromCharCode(f):f>191&&224>f?(e+=String.fromCharCode((31&f)<<6|63&c[d+1]),++d):(e+=String.fromCharCode((15&f)<<12|(63&c[d+1])<<6|63&c[d+2]),d+=2)}return e}function ob(a,b,c){null!=a&&null!=b&&a.length>0&&b.length>0?(this.n=hb(a,16),this.e=parseInt(b,16),this.d=hb(c,16)):console.error("Invalid RSA private key")}function pb(a,b,c,d,e,f,g,h){null!=a&&null!=b&&a.length>0&&b.length>0?(this.n=hb(a,16),this.e=parseInt(b,16),this.d=hb(c,16),this.p=hb(d,16),this.q=hb(e,16),this.dmp1=hb(f,16),this.dmq1=hb(g,16),this.coeff=hb(h,16)):console.error("Invalid RSA private key")}function qb(a,c){var d=new gb,e=a>>1;this.e=parseInt(c,16);for(var f=new b(c,16);;){for(;this.p=new b(a-e,1,d),0!=this.p.subtract(b.ONE).gcd(f).compareTo(b.ONE)||!this.p.isProbablePrime(10););for(;this.q=new b(e,1,d),0!=this.q.subtract(b.ONE).gcd(f).compareTo(b.ONE)||!this.q.isProbablePrime(10););if(this.p.compareTo(this.q)<=0){var g=this.p;this.p=this.q,this.q=g}var h=this.p.subtract(b.ONE),i=this.q.subtract(b.ONE),j=h.multiply(i);if(0==j.gcd(f).compareTo(b.ONE)){this.n=this.p.multiply(this.q),this.d=f.modInverse(j),this.dmp1=this.d.mod(h),this.dmq1=this.d.mod(i),this.coeff=this.q.modInverse(this.p);break}}}function rb(a){if(null==this.p||null==this.q)return a.modPow(this.d,this.n);for(var b=a.mod(this.p).modPow(this.dmp1,this.p),c=a.mod(this.q).modPow(this.dmq1,this.q);b.compareTo(c)<0;)b=b.add(this.p);return b.subtract(c).multiply(this.coeff).mod(this.p).multiply(this.q).add(c)}function sb(a){var b=hb(a,16),c=this.doPrivate(b);return null==c?null:nb(c,this.n.bitLength()+7>>3)}function tb(a){var b,c,d="";for(b=0;b+3<=a.length;b+=3)c=parseInt(a.substring(b,b+3),16),d+=Mb.charAt(c>>6)+Mb.charAt(63&c);for(b+1==a.length?(c=parseInt(a.substring(b,b+1),16),d+=Mb.charAt(c<<2)):b+2==a.length&&(c=parseInt(a.substring(b,b+2),16),d+=Mb.charAt(c>>2)+Mb.charAt((3&c)<<4));(3&d.length)>0;)d+=Nb;return d}function ub(a){var b,c,d="",e=0;for(b=0;b<a.length&&a.charAt(b)!=Nb;++b)v=Mb.indexOf(a.charAt(b)),v<0||(0==e?(d+=g(v>>2),c=3&v,e=1):1==e?(d+=g(c<<2|v>>4),c=15&v,e=2):2==e?(d+=g(c),d+=g(v>>2),c=3&v,e=3):(d+=g(c<<2|v>>4),d+=g(15&v),e=0));return 1==e&&(d+=g(c<<2)),d}var vb,wb=0xdeadbeefcafe,xb=15715070==(16777215&wb);xb&&"Microsoft Internet Explorer"==navigator.appName?(b.prototype.am=e,vb=30):xb&&"Netscape"!=navigator.appName?(b.prototype.am=d,vb=26):(b.prototype.am=f,vb=28),b.prototype.DB=vb,b.prototype.DM=(1<<vb)-1,b.prototype.DV=1<<vb;var yb=52;b.prototype.FV=Math.pow(2,yb),b.prototype.F1=yb-vb,b.prototype.F2=2*vb-yb;var zb,Ab,Bb="0123456789abcdefghijklmnopqrstuvwxyz",Cb=new Array;for(zb="0".charCodeAt(0),Ab=0;9>=Ab;++Ab)Cb[zb++]=Ab;for(zb="a".charCodeAt(0),Ab=10;36>Ab;++Ab)Cb[zb++]=Ab;for(zb="A".charCodeAt(0),Ab=10;36>Ab;++Ab)Cb[zb++]=Ab;D.prototype.convert=E,D.prototype.revert=F,D.prototype.reduce=G,D.prototype.mulTo=H,D.prototype.sqrTo=I,K.prototype.convert=L,K.prototype.revert=M,K.prototype.reduce=N,K.prototype.mulTo=P,K.prototype.sqrTo=O,b.prototype.copyTo=i,b.prototype.fromInt=j,b.prototype.fromString=l,b.prototype.clamp=m,b.prototype.dlShiftTo=t,b.prototype.drShiftTo=u,b.prototype.lShiftTo=w,b.prototype.rShiftTo=x,b.prototype.subTo=y,b.prototype.multiplyTo=z,b.prototype.squareTo=A,b.prototype.divRemTo=B,b.prototype.invDigit=J,b.prototype.isEven=Q,b.prototype.exp=R,b.prototype.toString=n,b.prototype.negate=o,b.prototype.abs=p,b.prototype.compareTo=q,b.prototype.bitLength=s,b.prototype.mod=C,b.prototype.modPowInt=S,b.ZERO=k(0),b.ONE=k(1),Ja.prototype.convert=Ka,Ja.prototype.revert=Ka,Ja.prototype.mulTo=La,Ja.prototype.sqrTo=Ma,Qa.prototype.convert=Ra,Qa.prototype.revert=Sa,Qa.prototype.reduce=Ta,Qa.prototype.mulTo=Va,Qa.prototype.sqrTo=Ua;var Db=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997],Eb=(1<<26)/Db[Db.length-1];b.prototype.chunkSize=X,b.prototype.toRadix=Z,b.prototype.fromRadix=$,b.prototype.fromNumber=_,b.prototype.bitwiseTo=ea,b.prototype.changeBit=va,b.prototype.addTo=za,b.prototype.dMultiply=Ha,b.prototype.dAddOffset=Ia,b.prototype.multiplyLowerTo=Oa,b.prototype.multiplyUpperTo=Pa,b.prototype.modInt=Ya,b.prototype.millerRabin=_a,b.prototype.clone=T,b.prototype.intValue=U,b.prototype.byteValue=V,b.prototype.shortValue=W,b.prototype.signum=Y,b.prototype.toByteArray=aa,b.prototype.equals=ba,b.prototype.min=ca,b.prototype.max=da,b.prototype.and=ga,b.prototype.or=ia,b.prototype.xor=ka,b.prototype.andNot=ma,b.prototype.not=na,b.prototype.shiftLeft=oa,b.prototype.shiftRight=pa,b.prototype.getLowestSetBit=ra,b.prototype.bitCount=ta,b.prototype.testBit=ua,b.prototype.setBit=wa,b.prototype.clearBit=xa,b.prototype.flipBit=ya,b.prototype.add=Aa,b.prototype.subtract=Ba,b.prototype.multiply=Ca,b.prototype.divide=Ea,b.prototype.remainder=Fa,b.prototype.divideAndRemainder=Ga,b.prototype.modPow=Wa,b.prototype.modInverse=Za,b.prototype.pow=Na,b.prototype.gcd=Xa,b.prototype.isProbablePrime=$a,b.prototype.square=Da,ab.prototype.init=bb,ab.prototype.next=cb;var Fb,Gb,Hb,Ib=256;if(null==Gb){Gb=new Array,Hb=0;var Jb;if(window.crypto&&window.crypto.getRandomValues){var Kb=new Uint32Array(256);for(window.crypto.getRandomValues(Kb),Jb=0;Jb<Kb.length;++Jb)Gb[Hb++]=255&Kb[Jb]}var Lb=function(a){if(this.count=this.count||0,this.count>=256||Hb>=Ib)return void(window.removeEventListener?window.removeEventListener("mousemove",Lb):window.detachEvent&&window.detachEvent("onmousemove",Lb));this.count+=1;var b=a.x+a.y;Gb[Hb++]=255&b};window.addEventListener?window.addEventListener("mousemove",Lb):window.attachEvent&&window.attachEvent("onmousemove",Lb)}gb.prototype.nextBytes=fb,jb.prototype.doPublic=lb,jb.prototype.setPublic=kb,jb.prototype.encrypt=mb,jb.prototype.doPrivate=rb,jb.prototype.setPrivate=ob,jb.prototype.setPrivateEx=pb,jb.prototype.generate=qb,jb.prototype.decrypt=sb,function(){var a=function(a,d,e){var f=new gb,g=a>>1;this.e=parseInt(d,16);var h=new b(d,16),i=this,j=function(){var d=function(){if(i.p.compareTo(i.q)<=0){var a=i.p;i.p=i.q,i.q=a}var c=i.p.subtract(b.ONE),d=i.q.subtract(b.ONE),f=c.multiply(d);0==f.gcd(h).compareTo(b.ONE)?(i.n=i.p.multiply(i.q),i.d=h.modInverse(f),i.dmp1=i.d.mod(c),i.dmq1=i.d.mod(d),i.coeff=i.q.modInverse(i.p),setTimeout(function(){e()},0)):setTimeout(j,0)},k=function(){i.q=c(),i.q.fromNumberAsync(g,1,f,function(){i.q.subtract(b.ONE).gcda(h,function(a){0==a.compareTo(b.ONE)&&i.q.isProbablePrime(10)?setTimeout(d,0):setTimeout(k,0)})})},l=function(){i.p=c(),i.p.fromNumberAsync(a-g,1,f,function(){i.p.subtract(b.ONE).gcda(h,function(a){0==a.compareTo(b.ONE)&&i.p.isProbablePrime(10)?setTimeout(k,0):setTimeout(l,0)})})};setTimeout(l,0)};setTimeout(j,0)};jb.prototype.generateAsync=a;var d=function(a,b){var c=this.s<0?this.negate():this.clone(),d=a.s<0?a.negate():a.clone();if(c.compareTo(d)<0){var e=c;c=d,d=e}var f=c.getLowestSetBit(),g=d.getLowestSetBit();if(0>g)return void b(c);g>f&&(g=f),g>0&&(c.rShiftTo(g,c),d.rShiftTo(g,d));var h=function(){(f=c.getLowestSetBit())>0&&c.rShiftTo(f,c),(f=d.getLowestSetBit())>0&&d.rShiftTo(f,d),c.compareTo(d)>=0?(c.subTo(d,c),c.rShiftTo(1,c)):(d.subTo(c,d),d.rShiftTo(1,d)),c.signum()>0?setTimeout(h,0):(g>0&&d.lShiftTo(g,d),setTimeout(function(){b(d)},0))};setTimeout(h,10)};b.prototype.gcda=d;var e=function(a,c,d,e){if("number"==typeof c)if(2>a)this.fromInt(1);else{this.fromNumber(a,d),this.testBit(a-1)||this.bitwiseTo(b.ONE.shiftLeft(a-1),ha,this),this.isEven()&&this.dAddOffset(1,0);var f=this,g=function(){f.dAddOffset(2,0),f.bitLength()>a&&f.subTo(b.ONE.shiftLeft(a-1),f),f.isProbablePrime(c)?setTimeout(function(){e()},0):setTimeout(g,0)};setTimeout(g,0)}else{var h=new Array,i=7&a;h.length=(a>>3)+1,c.nextBytes(h),i>0?h[0]&=(1<<i)-1:h[0]=0,this.fromString(h,256)}};b.prototype.fromNumberAsync=e}();var Mb="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",Nb="=",Ob=Ob||{};Ob.env=Ob.env||{};var Pb=Ob,Qb=Object.prototype,Rb="[object Function]",Sb=["toString","valueOf"];Ob.env.parseUA=function(a){var b,c=function(a){var b=0;return parseFloat(a.replace(/\./g,function(){return 1==b++?"":"."}))},d=navigator,e={ie:0,opera:0,gecko:0,webkit:0,chrome:0,mobile:null,air:0,ipad:0,iphone:0,ipod:0,ios:null,android:0,webos:0,caja:d&&d.cajaVersion,secure:!1,os:null},f=a||navigator&&navigator.userAgent,g=window&&window.location,h=g&&g.href;return e.secure=h&&0===h.toLowerCase().indexOf("https"),f&&(/windows|win32/i.test(f)?e.os="windows":/macintosh/i.test(f)?e.os="macintosh":/rhino/i.test(f)&&(e.os="rhino"),/KHTML/.test(f)&&(e.webkit=1),b=f.match(/AppleWebKit\/([^\s]*)/),b&&b[1]&&(e.webkit=c(b[1]),/ Mobile\//.test(f)?(e.mobile="Apple",b=f.match(/OS ([^\s]*)/),b&&b[1]&&(b=c(b[1].replace("_","."))),e.ios=b,e.ipad=e.ipod=e.iphone=0,b=f.match(/iPad|iPod|iPhone/),b&&b[0]&&(e[b[0].toLowerCase()]=e.ios)):(b=f.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/),b&&(e.mobile=b[0]),/webOS/.test(f)&&(e.mobile="WebOS",b=f.match(/webOS\/([^\s]*);/),b&&b[1]&&(e.webos=c(b[1]))),/ Android/.test(f)&&(e.mobile="Android",b=f.match(/Android ([^\s]*);/),b&&b[1]&&(e.android=c(b[1])))),b=f.match(/Chrome\/([^\s]*)/),b&&b[1]?e.chrome=c(b[1]):(b=f.match(/AdobeAIR\/([^\s]*)/),b&&(e.air=b[0]))),e.webkit||(b=f.match(/Opera[\s\/]([^\s]*)/),b&&b[1]?(e.opera=c(b[1]),b=f.match(/Version\/([^\s]*)/),b&&b[1]&&(e.opera=c(b[1])),b=f.match(/Opera Mini[^;]*/),b&&(e.mobile=b[0])):(b=f.match(/MSIE\s([^;]*)/),b&&b[1]?e.ie=c(b[1]):(b=f.match(/Gecko\/([^\s]*)/),b&&(e.gecko=1,b=f.match(/rv:([^\s\)]*)/),b&&b[1]&&(e.gecko=c(b[1]))))))),e},Ob.env.ua=Ob.env.parseUA(),Ob.isFunction=function(a){return"function"==typeof a||Qb.toString.apply(a)===Rb},Ob._IEEnumFix=Ob.env.ua.ie?function(a,b){var c,d,e;for(c=0;c<Sb.length;c+=1)d=Sb[c],e=b[d],Pb.isFunction(e)&&e!=Qb[d]&&(a[d]=e)}:function(){},Ob.extend=function(a,b,c){if(!b||!a)throw new Error("extend failed, please check that all dependencies are included.");var d,e=function(){};if(e.prototype=b.prototype,a.prototype=new e,a.prototype.constructor=a,a.superclass=b.prototype,b.prototype.constructor==Qb.constructor&&(b.prototype.constructor=b),c){for(d in c)Pb.hasOwnProperty(c,d)&&(a.prototype[d]=c[d]);Pb._IEEnumFix(a.prototype,c)}},"undefined"!=typeof KJUR&&KJUR||(KJUR={}),"undefined"!=typeof KJUR.asn1&&KJUR.asn1||(KJUR.asn1={}),KJUR.asn1.ASN1Util=new function(){this.integerToByteHex=function(a){var b=a.toString(16);return b.length%2==1&&(b="0"+b),b},this.bigIntToMinTwosComplementsHex=function(a){var c=a.toString(16);if("-"!=c.substr(0,1))c.length%2==1?c="0"+c:c.match(/^[0-7]/)||(c="00"+c);else{var d=c.substr(1),e=d.length;e%2==1?e+=1:c.match(/^[0-7]/)||(e+=2);for(var f="",g=0;e>g;g++)f+="f";var h=new b(f,16),i=h.xor(a).add(b.ONE);c=i.toString(16).replace(/^-/,"")}return c},this.getPEMStringFromHex=function(a,b){var c=CryptoJS.enc.Hex.parse(a),d=CryptoJS.enc.Base64.stringify(c),e=d.replace(/(.{64})/g,"$1\r\n");return e=e.replace(/\r\n$/,""),"-----BEGIN "+b+"-----\r\n"+e+"\r\n-----END "+b+"-----\r\n"}},KJUR.asn1.ASN1Object=function(){var a="";this.getLengthHexFromValue=function(){if("undefined"==typeof this.hV||null==this.hV)throw"this.hV is null or undefined.";if(this.hV.length%2==1)throw"value hex must be even length: n="+a.length+",v="+this.hV;var b=this.hV.length/2,c=b.toString(16);if(c.length%2==1&&(c="0"+c),128>b)return c;var d=c.length/2;if(d>15)throw"ASN.1 length too long to represent by 8x: n = "+b.toString(16);var e=128+d;return e.toString(16)+c},this.getEncodedHex=function(){return(null==this.hTLV||this.isModified)&&(this.hV=this.getFreshValueHex(),this.hL=this.getLengthHexFromValue(),this.hTLV=this.hT+this.hL+this.hV,this.isModified=!1),this.hTLV},this.getValueHex=function(){return this.getEncodedHex(),this.hV},this.getFreshValueHex=function(){return""}},KJUR.asn1.DERAbstractString=function(a){KJUR.asn1.DERAbstractString.superclass.constructor.call(this);this.getString=function(){return this.s},this.setString=function(a){this.hTLV=null,this.isModified=!0,this.s=a,this.hV=stohex(this.s)},this.setStringHex=function(a){this.hTLV=null,this.isModified=!0,this.s=null,this.hV=a},this.getFreshValueHex=function(){return this.hV},"undefined"!=typeof a&&("undefined"!=typeof a.str?this.setString(a.str):"undefined"!=typeof a.hex&&this.setStringHex(a.hex))},Ob.extend(KJUR.asn1.DERAbstractString,KJUR.asn1.ASN1Object),KJUR.asn1.DERAbstractTime=function(a){KJUR.asn1.DERAbstractTime.superclass.constructor.call(this);this.localDateToUTC=function(a){utc=a.getTime()+6e4*a.getTimezoneOffset();var b=new Date(utc);return b},this.formatDate=function(a,b){var c=this.zeroPadding,d=this.localDateToUTC(a),e=String(d.getFullYear());"utc"==b&&(e=e.substr(2,2));var f=c(String(d.getMonth()+1),2),g=c(String(d.getDate()),2),h=c(String(d.getHours()),2),i=c(String(d.getMinutes()),2),j=c(String(d.getSeconds()),2);return e+f+g+h+i+j+"Z"},this.zeroPadding=function(a,b){return a.length>=b?a:new Array(b-a.length+1).join("0")+a},this.getString=function(){return this.s},this.setString=function(a){this.hTLV=null,this.isModified=!0,this.s=a,this.hV=stohex(this.s)},this.setByDateValue=function(a,b,c,d,e,f){var g=new Date(Date.UTC(a,b-1,c,d,e,f,0));this.setByDate(g)},this.getFreshValueHex=function(){return this.hV}},Ob.extend(KJUR.asn1.DERAbstractTime,KJUR.asn1.ASN1Object),KJUR.asn1.DERAbstractStructured=function(a){KJUR.asn1.DERAbstractString.superclass.constructor.call(this);this.setByASN1ObjectArray=function(a){this.hTLV=null,this.isModified=!0,this.asn1Array=a},this.appendASN1Object=function(a){this.hTLV=null,this.isModified=!0,this.asn1Array.push(a)},this.asn1Array=new Array,"undefined"!=typeof a&&"undefined"!=typeof a.array&&(this.asn1Array=a.array)},Ob.extend(KJUR.asn1.DERAbstractStructured,KJUR.asn1.ASN1Object),KJUR.asn1.DERBoolean=function(){KJUR.asn1.DERBoolean.superclass.constructor.call(this),this.hT="01",this.hTLV="0101ff"},Ob.extend(KJUR.asn1.DERBoolean,KJUR.asn1.ASN1Object),KJUR.asn1.DERInteger=function(a){KJUR.asn1.DERInteger.superclass.constructor.call(this),this.hT="02",this.setByBigInteger=function(a){this.hTLV=null,this.isModified=!0,this.hV=KJUR.asn1.ASN1Util.bigIntToMinTwosComplementsHex(a)},this.setByInteger=function(a){var c=new b(String(a),10);this.setByBigInteger(c)},this.setValueHex=function(a){this.hV=a},this.getFreshValueHex=function(){return this.hV},"undefined"!=typeof a&&("undefined"!=typeof a.bigint?this.setByBigInteger(a.bigint):"undefined"!=typeof a["int"]?this.setByInteger(a["int"]):"undefined"!=typeof a.hex&&this.setValueHex(a.hex))},Ob.extend(KJUR.asn1.DERInteger,KJUR.asn1.ASN1Object),KJUR.asn1.DERBitString=function(a){KJUR.asn1.DERBitString.superclass.constructor.call(this),this.hT="03",this.setHexValueIncludingUnusedBits=function(a){this.hTLV=null,this.isModified=!0,this.hV=a},this.setUnusedBitsAndHexValue=function(a,b){if(0>a||a>7)throw"unused bits shall be from 0 to 7: u = "+a;var c="0"+a;this.hTLV=null,this.isModified=!0,this.hV=c+b},
+this.setByBinaryString=function(a){a=a.replace(/0+$/,"");var b=8-a.length%8;8==b&&(b=0);for(var c=0;b>=c;c++)a+="0";for(var d="",c=0;c<a.length-1;c+=8){var e=a.substr(c,8),f=parseInt(e,2).toString(16);1==f.length&&(f="0"+f),d+=f}this.hTLV=null,this.isModified=!0,this.hV="0"+b+d},this.setByBooleanArray=function(a){for(var b="",c=0;c<a.length;c++)b+=1==a[c]?"1":"0";this.setByBinaryString(b)},this.newFalseArray=function(a){for(var b=new Array(a),c=0;a>c;c++)b[c]=!1;return b},this.getFreshValueHex=function(){return this.hV},"undefined"!=typeof a&&("undefined"!=typeof a.hex?this.setHexValueIncludingUnusedBits(a.hex):"undefined"!=typeof a.bin?this.setByBinaryString(a.bin):"undefined"!=typeof a.array&&this.setByBooleanArray(a.array))},Ob.extend(KJUR.asn1.DERBitString,KJUR.asn1.ASN1Object),KJUR.asn1.DEROctetString=function(a){KJUR.asn1.DEROctetString.superclass.constructor.call(this,a),this.hT="04"},Ob.extend(KJUR.asn1.DEROctetString,KJUR.asn1.DERAbstractString),KJUR.asn1.DERNull=function(){KJUR.asn1.DERNull.superclass.constructor.call(this),this.hT="05",this.hTLV="0500"},Ob.extend(KJUR.asn1.DERNull,KJUR.asn1.ASN1Object),KJUR.asn1.DERObjectIdentifier=function(a){var c=function(a){var b=a.toString(16);return 1==b.length&&(b="0"+b),b},d=function(a){var d="",e=new b(a,10),f=e.toString(2),g=7-f.length%7;7==g&&(g=0);for(var h="",i=0;g>i;i++)h+="0";f=h+f;for(var i=0;i<f.length-1;i+=7){var j=f.substr(i,7);i!=f.length-7&&(j="1"+j),d+=c(parseInt(j,2))}return d};KJUR.asn1.DERObjectIdentifier.superclass.constructor.call(this),this.hT="06",this.setValueHex=function(a){this.hTLV=null,this.isModified=!0,this.s=null,this.hV=a},this.setValueOidString=function(a){if(!a.match(/^[0-9.]+$/))throw"malformed oid string: "+a;var b="",e=a.split("."),f=40*parseInt(e[0])+parseInt(e[1]);b+=c(f),e.splice(0,2);for(var g=0;g<e.length;g++)b+=d(e[g]);this.hTLV=null,this.isModified=!0,this.s=null,this.hV=b},this.setValueName=function(a){if("undefined"==typeof KJUR.asn1.x509.OID.name2oidList[a])throw"DERObjectIdentifier oidName undefined: "+a;var b=KJUR.asn1.x509.OID.name2oidList[a];this.setValueOidString(b)},this.getFreshValueHex=function(){return this.hV},"undefined"!=typeof a&&("undefined"!=typeof a.oid?this.setValueOidString(a.oid):"undefined"!=typeof a.hex?this.setValueHex(a.hex):"undefined"!=typeof a.name&&this.setValueName(a.name))},Ob.extend(KJUR.asn1.DERObjectIdentifier,KJUR.asn1.ASN1Object),KJUR.asn1.DERUTF8String=function(a){KJUR.asn1.DERUTF8String.superclass.constructor.call(this,a),this.hT="0c"},Ob.extend(KJUR.asn1.DERUTF8String,KJUR.asn1.DERAbstractString),KJUR.asn1.DERNumericString=function(a){KJUR.asn1.DERNumericString.superclass.constructor.call(this,a),this.hT="12"},Ob.extend(KJUR.asn1.DERNumericString,KJUR.asn1.DERAbstractString),KJUR.asn1.DERPrintableString=function(a){KJUR.asn1.DERPrintableString.superclass.constructor.call(this,a),this.hT="13"},Ob.extend(KJUR.asn1.DERPrintableString,KJUR.asn1.DERAbstractString),KJUR.asn1.DERTeletexString=function(a){KJUR.asn1.DERTeletexString.superclass.constructor.call(this,a),this.hT="14"},Ob.extend(KJUR.asn1.DERTeletexString,KJUR.asn1.DERAbstractString),KJUR.asn1.DERIA5String=function(a){KJUR.asn1.DERIA5String.superclass.constructor.call(this,a),this.hT="16"},Ob.extend(KJUR.asn1.DERIA5String,KJUR.asn1.DERAbstractString),KJUR.asn1.DERUTCTime=function(a){KJUR.asn1.DERUTCTime.superclass.constructor.call(this,a),this.hT="17",this.setByDate=function(a){this.hTLV=null,this.isModified=!0,this.date=a,this.s=this.formatDate(this.date,"utc"),this.hV=stohex(this.s)},"undefined"!=typeof a&&("undefined"!=typeof a.str?this.setString(a.str):"undefined"!=typeof a.hex?this.setStringHex(a.hex):"undefined"!=typeof a.date&&this.setByDate(a.date))},Ob.extend(KJUR.asn1.DERUTCTime,KJUR.asn1.DERAbstractTime),KJUR.asn1.DERGeneralizedTime=function(a){KJUR.asn1.DERGeneralizedTime.superclass.constructor.call(this,a),this.hT="18",this.setByDate=function(a){this.hTLV=null,this.isModified=!0,this.date=a,this.s=this.formatDate(this.date,"gen"),this.hV=stohex(this.s)},"undefined"!=typeof a&&("undefined"!=typeof a.str?this.setString(a.str):"undefined"!=typeof a.hex?this.setStringHex(a.hex):"undefined"!=typeof a.date&&this.setByDate(a.date))},Ob.extend(KJUR.asn1.DERGeneralizedTime,KJUR.asn1.DERAbstractTime),KJUR.asn1.DERSequence=function(a){KJUR.asn1.DERSequence.superclass.constructor.call(this,a),this.hT="30",this.getFreshValueHex=function(){for(var a="",b=0;b<this.asn1Array.length;b++){var c=this.asn1Array[b];a+=c.getEncodedHex()}return this.hV=a,this.hV}},Ob.extend(KJUR.asn1.DERSequence,KJUR.asn1.DERAbstractStructured),KJUR.asn1.DERSet=function(a){KJUR.asn1.DERSet.superclass.constructor.call(this,a),this.hT="31",this.getFreshValueHex=function(){for(var a=new Array,b=0;b<this.asn1Array.length;b++){var c=this.asn1Array[b];a.push(c.getEncodedHex())}return a.sort(),this.hV=a.join(""),this.hV}},Ob.extend(KJUR.asn1.DERSet,KJUR.asn1.DERAbstractStructured),KJUR.asn1.DERTaggedObject=function(a){KJUR.asn1.DERTaggedObject.superclass.constructor.call(this),this.hT="a0",this.hV="",this.isExplicit=!0,this.asn1Object=null,this.setASN1Object=function(a,b,c){this.hT=b,this.isExplicit=a,this.asn1Object=c,this.isExplicit?(this.hV=this.asn1Object.getEncodedHex(),this.hTLV=null,this.isModified=!0):(this.hV=null,this.hTLV=c.getEncodedHex(),this.hTLV=this.hTLV.replace(/^../,b),this.isModified=!1)},this.getFreshValueHex=function(){return this.hV},"undefined"!=typeof a&&("undefined"!=typeof a.tag&&(this.hT=a.tag),"undefined"!=typeof a.explicit&&(this.isExplicit=a.explicit),"undefined"!=typeof a.obj&&(this.asn1Object=a.obj,this.setASN1Object(this.isExplicit,this.hT,this.asn1Object)))},Ob.extend(KJUR.asn1.DERTaggedObject,KJUR.asn1.ASN1Object),function(a){"use strict";var b,c={};c.decode=function(c){var d;if(b===a){var e="0123456789ABCDEF",f=" \f\n\r	 \u2028\u2029";for(b=[],d=0;16>d;++d)b[e.charAt(d)]=d;for(e=e.toLowerCase(),d=10;16>d;++d)b[e.charAt(d)]=d;for(d=0;d<f.length;++d)b[f.charAt(d)]=-1}var g=[],h=0,i=0;for(d=0;d<c.length;++d){var j=c.charAt(d);if("="==j)break;if(j=b[j],-1!=j){if(j===a)throw"Illegal character at offset "+d;h|=j,++i>=2?(g[g.length]=h,h=0,i=0):h<<=4}}if(i)throw"Hex encoding incomplete: 4 bits missing";return g},window.Hex=c}(),function(a){"use strict";var b,c={};c.decode=function(c){var d;if(b===a){var e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",f="= \f\n\r	 \u2028\u2029";for(b=[],d=0;64>d;++d)b[e.charAt(d)]=d;for(d=0;d<f.length;++d)b[f.charAt(d)]=-1}var g=[],h=0,i=0;for(d=0;d<c.length;++d){var j=c.charAt(d);if("="==j)break;if(j=b[j],-1!=j){if(j===a)throw"Illegal character at offset "+d;h|=j,++i>=4?(g[g.length]=h>>16,g[g.length]=h>>8&255,g[g.length]=255&h,h=0,i=0):h<<=6}}switch(i){case 1:throw"Base64 encoding incomplete: at least 2 bits missing";case 2:g[g.length]=h>>10;break;case 3:g[g.length]=h>>16,g[g.length]=h>>8&255}return g},c.re=/-----BEGIN [^-]+-----([A-Za-z0-9+\/=\s]+)-----END [^-]+-----|begin-base64[^\n]+\n([A-Za-z0-9+\/=\s]+)====/,c.unarmor=function(a){var b=c.re.exec(a);if(b)if(b[1])a=b[1];else{if(!b[2])throw"RegExp out of sync";a=b[2]}return c.decode(a)},window.Base64=c}(),function(a){"use strict";function b(a,c){a instanceof b?(this.enc=a.enc,this.pos=a.pos):(this.enc=a,this.pos=c)}function c(a,b,c,d,e){this.stream=a,this.header=b,this.length=c,this.tag=d,this.sub=e}var d=100,e="…",f={tag:function(a,b){var c=document.createElement(a);return c.className=b,c},text:function(a){return document.createTextNode(a)}};b.prototype.get=function(b){if(b===a&&(b=this.pos++),b>=this.enc.length)throw"Requesting byte offset "+b+" on a stream of length "+this.enc.length;return this.enc[b]},b.prototype.hexDigits="0123456789ABCDEF",b.prototype.hexByte=function(a){return this.hexDigits.charAt(a>>4&15)+this.hexDigits.charAt(15&a)},b.prototype.hexDump=function(a,b,c){for(var d="",e=a;b>e;++e)if(d+=this.hexByte(this.get(e)),c!==!0)switch(15&e){case 7:d+="  ";break;case 15:d+="\n";break;default:d+=" "}return d},b.prototype.parseStringISO=function(a,b){for(var c="",d=a;b>d;++d)c+=String.fromCharCode(this.get(d));return c},b.prototype.parseStringUTF=function(a,b){for(var c="",d=a;b>d;){var e=this.get(d++);c+=128>e?String.fromCharCode(e):e>191&&224>e?String.fromCharCode((31&e)<<6|63&this.get(d++)):String.fromCharCode((15&e)<<12|(63&this.get(d++))<<6|63&this.get(d++))}return c},b.prototype.parseStringBMP=function(a,b){for(var c="",d=a;b>d;d+=2){var e=this.get(d),f=this.get(d+1);c+=String.fromCharCode((e<<8)+f)}return c},b.prototype.reTime=/^((?:1[89]|2\d)?\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])(?:([0-5]\d)(?:([0-5]\d)(?:[.,](\d{1,3}))?)?)?(Z|[-+](?:[0]\d|1[0-2])([0-5]\d)?)?$/,b.prototype.parseTime=function(a,b){var c=this.parseStringISO(a,b),d=this.reTime.exec(c);return d?(c=d[1]+"-"+d[2]+"-"+d[3]+" "+d[4],d[5]&&(c+=":"+d[5],d[6]&&(c+=":"+d[6],d[7]&&(c+="."+d[7]))),d[8]&&(c+=" UTC","Z"!=d[8]&&(c+=d[8],d[9]&&(c+=":"+d[9]))),c):"Unrecognized time: "+c},b.prototype.parseInteger=function(a,b){var c=b-a;if(c>4){c<<=3;var d=this.get(a);if(0===d)c-=8;else for(;128>d;)d<<=1,--c;return"("+c+" bit)"}for(var e=0,f=a;b>f;++f)e=e<<8|this.get(f);return e},b.prototype.parseBitString=function(a,b){var c=this.get(a),d=(b-a-1<<3)-c,e="("+d+" bit)";if(20>=d){var f=c;e+=" ";for(var g=b-1;g>a;--g){for(var h=this.get(g),i=f;8>i;++i)e+=h>>i&1?"1":"0";f=0}}return e},b.prototype.parseOctetString=function(a,b){var c=b-a,f="("+c+" byte) ";c>d&&(b=a+d);for(var g=a;b>g;++g)f+=this.hexByte(this.get(g));return c>d&&(f+=e),f},b.prototype.parseOID=function(a,b){for(var c="",d=0,e=0,f=a;b>f;++f){var g=this.get(f);if(d=d<<7|127&g,e+=7,!(128&g)){if(""===c){var h=80>d?40>d?0:1:2;c=h+"."+(d-40*h)}else c+="."+(e>=31?"bigint":d);d=e=0}}return c},c.prototype.typeName=function(){if(this.tag===a)return"unknown";var b=this.tag>>6,c=(this.tag>>5&1,31&this.tag);switch(b){case 0:switch(c){case 0:return"EOC";case 1:return"BOOLEAN";case 2:return"INTEGER";case 3:return"BIT_STRING";case 4:return"OCTET_STRING";case 5:return"NULL";case 6:return"OBJECT_IDENTIFIER";case 7:return"ObjectDescriptor";case 8:return"EXTERNAL";case 9:return"REAL";case 10:return"ENUMERATED";case 11:return"EMBEDDED_PDV";case 12:return"UTF8String";case 16:return"SEQUENCE";case 17:return"SET";case 18:return"NumericString";case 19:return"PrintableString";case 20:return"TeletexString";case 21:return"VideotexString";case 22:return"IA5String";case 23:return"UTCTime";case 24:return"GeneralizedTime";case 25:return"GraphicString";case 26:return"VisibleString";case 27:return"GeneralString";case 28:return"UniversalString";case 30:return"BMPString";default:return"Universal_"+c.toString(16)}case 1:return"Application_"+c.toString(16);case 2:return"["+c+"]";case 3:return"Private_"+c.toString(16)}},c.prototype.reSeemsASCII=/^[ -~]+$/,c.prototype.content=function(){if(this.tag===a)return null;var b=this.tag>>6,c=31&this.tag,f=this.posContent(),g=Math.abs(this.length);if(0!==b){if(null!==this.sub)return"("+this.sub.length+" elem)";var h=this.stream.parseStringISO(f,f+Math.min(g,d));return this.reSeemsASCII.test(h)?h.substring(0,2*d)+(h.length>2*d?e:""):this.stream.parseOctetString(f,f+g)}switch(c){case 1:return 0===this.stream.get(f)?"false":"true";case 2:return this.stream.parseInteger(f,f+g);case 3:return this.sub?"("+this.sub.length+" elem)":this.stream.parseBitString(f,f+g);case 4:return this.sub?"("+this.sub.length+" elem)":this.stream.parseOctetString(f,f+g);case 6:return this.stream.parseOID(f,f+g);case 16:case 17:return"("+this.sub.length+" elem)";case 12:return this.stream.parseStringUTF(f,f+g);case 18:case 19:case 20:case 21:case 22:case 26:return this.stream.parseStringISO(f,f+g);case 30:return this.stream.parseStringBMP(f,f+g);case 23:case 24:return this.stream.parseTime(f,f+g)}return null},c.prototype.toString=function(){return this.typeName()+"@"+this.stream.pos+"[header:"+this.header+",length:"+this.length+",sub:"+(null===this.sub?"null":this.sub.length)+"]"},c.prototype.print=function(b){if(b===a&&(b=""),document.writeln(b+this),null!==this.sub){b+="  ";for(var c=0,d=this.sub.length;d>c;++c)this.sub[c].print(b)}},c.prototype.toPrettyString=function(b){b===a&&(b="");var c=b+this.typeName()+" @"+this.stream.pos;if(this.length>=0&&(c+="+"),c+=this.length,32&this.tag?c+=" (constructed)":3!=this.tag&&4!=this.tag||null===this.sub||(c+=" (encapsulates)"),c+="\n",null!==this.sub){b+="  ";for(var d=0,e=this.sub.length;e>d;++d)c+=this.sub[d].toPrettyString(b)}return c},c.prototype.toDOM=function(){var a=f.tag("div","node");a.asn1=this;var b=f.tag("div","head"),c=this.typeName().replace(/_/g," ");b.innerHTML=c;var d=this.content();if(null!==d){d=String(d).replace(/</g,"&lt;");var e=f.tag("span","preview");e.appendChild(f.text(d)),b.appendChild(e)}a.appendChild(b),this.node=a,this.head=b;var g=f.tag("div","value");if(c="Offset: "+this.stream.pos+"<br/>",c+="Length: "+this.header+"+",c+=this.length>=0?this.length:-this.length+" (undefined)",32&this.tag?c+="<br/>(constructed)":3!=this.tag&&4!=this.tag||null===this.sub||(c+="<br/>(encapsulates)"),null!==d&&(c+="<br/>Value:<br/><b>"+d+"</b>","object"==typeof oids&&6==this.tag)){var h=oids[d];h&&(h.d&&(c+="<br/>"+h.d),h.c&&(c+="<br/>"+h.c),h.w&&(c+="<br/>(warning!)"))}g.innerHTML=c,a.appendChild(g);var i=f.tag("div","sub");if(null!==this.sub)for(var j=0,k=this.sub.length;k>j;++j)i.appendChild(this.sub[j].toDOM());return a.appendChild(i),b.onclick=function(){a.className="node collapsed"==a.className?"node":"node collapsed"},a},c.prototype.posStart=function(){return this.stream.pos},c.prototype.posContent=function(){return this.stream.pos+this.header},c.prototype.posEnd=function(){return this.stream.pos+this.header+Math.abs(this.length)},c.prototype.fakeHover=function(a){this.node.className+=" hover",a&&(this.head.className+=" hover")},c.prototype.fakeOut=function(a){var b=/ ?hover/;this.node.className=this.node.className.replace(b,""),a&&(this.head.className=this.head.className.replace(b,""))},c.prototype.toHexDOM_sub=function(a,b,c,d,e){if(!(d>=e)){var g=f.tag("span",b);g.appendChild(f.text(c.hexDump(d,e))),a.appendChild(g)}},c.prototype.toHexDOM=function(b){var c=f.tag("span","hex");if(b===a&&(b=c),this.head.hexNode=c,this.head.onmouseover=function(){this.hexNode.className="hexCurrent"},this.head.onmouseout=function(){this.hexNode.className="hex"},c.asn1=this,c.onmouseover=function(){var a=!b.selected;a&&(b.selected=this.asn1,this.className="hexCurrent"),this.asn1.fakeHover(a)},c.onmouseout=function(){var a=b.selected==this.asn1;this.asn1.fakeOut(a),a&&(b.selected=null,this.className="hex")},this.toHexDOM_sub(c,"tag",this.stream,this.posStart(),this.posStart()+1),this.toHexDOM_sub(c,this.length>=0?"dlen":"ulen",this.stream,this.posStart()+1,this.posContent()),null===this.sub)c.appendChild(f.text(this.stream.hexDump(this.posContent(),this.posEnd())));else if(this.sub.length>0){var d=this.sub[0],e=this.sub[this.sub.length-1];this.toHexDOM_sub(c,"intro",this.stream,this.posContent(),d.posStart());for(var g=0,h=this.sub.length;h>g;++g)c.appendChild(this.sub[g].toHexDOM(b));this.toHexDOM_sub(c,"outro",this.stream,e.posEnd(),this.posEnd())}return c},c.prototype.toHexString=function(a){return this.stream.hexDump(this.posStart(),this.posEnd(),!0)},c.decodeLength=function(a){var b=a.get(),c=127&b;if(c==b)return c;if(c>3)throw"Length over 24 bits not supported at position "+(a.pos-1);if(0===c)return-1;b=0;for(var d=0;c>d;++d)b=b<<8|a.get();return b},c.hasContent=function(a,d,e){if(32&a)return!0;if(3>a||a>4)return!1;var f=new b(e);3==a&&f.get();var g=f.get();if(g>>6&1)return!1;try{var h=c.decodeLength(f);return f.pos-e.pos+h==d}catch(i){return!1}},c.decode=function(a){a instanceof b||(a=new b(a,0));var d=new b(a),e=a.get(),f=c.decodeLength(a),g=a.pos-d.pos,h=null;if(c.hasContent(e,f,a)){var i=a.pos;if(3==e&&a.get(),h=[],f>=0){for(var j=i+f;a.pos<j;)h[h.length]=c.decode(a);if(a.pos!=j)throw"Content size is not correct for container starting at offset "+i}else try{for(;;){var k=c.decode(a);if(0===k.tag)break;h[h.length]=k}f=i-a.pos}catch(l){throw"Exception while decoding undefined length content: "+l}}else a.pos+=f;return new c(d,g,f,e,h)},c.test=function(){for(var a=[{value:[39],expected:39},{value:[129,201],expected:201},{value:[131,254,220,186],expected:16702650}],d=0,e=a.length;e>d;++d){var f=new b(a[d].value,0),g=c.decodeLength(f);g!=a[d].expected&&document.write("In test["+d+"] expected "+a[d].expected+" got "+g+"\n")}},window.ASN1=c}(),ASN1.prototype.getHexStringValue=function(){var a=this.toHexString(),b=2*this.header,c=2*this.length;return a.substr(b,c)},jb.prototype.parseKey=function(a){try{var b=0,c=0,d=/^\s*(?:[0-9A-Fa-f][0-9A-Fa-f]\s*)+$/,e=d.test(a)?Hex.decode(a):Base64.unarmor(a),f=ASN1.decode(e);if(9===f.sub.length){b=f.sub[1].getHexStringValue(),this.n=hb(b,16),c=f.sub[2].getHexStringValue(),this.e=parseInt(c,16);var g=f.sub[3].getHexStringValue();this.d=hb(g,16);var h=f.sub[4].getHexStringValue();this.p=hb(h,16);var i=f.sub[5].getHexStringValue();this.q=hb(i,16);var j=f.sub[6].getHexStringValue();this.dmp1=hb(j,16);var k=f.sub[7].getHexStringValue();this.dmq1=hb(k,16);var l=f.sub[8].getHexStringValue();this.coeff=hb(l,16)}else{if(2!==f.sub.length)return!1;var m=f.sub[1],n=m.sub[0];b=n.sub[0].getHexStringValue(),this.n=hb(b,16),c=n.sub[1].getHexStringValue(),this.e=parseInt(c,16)}return!0}catch(o){return!1}},jb.prototype.getPrivateBaseKey=function(){var a={array:[new KJUR.asn1.DERInteger({"int":0}),new KJUR.asn1.DERInteger({bigint:this.n}),new KJUR.asn1.DERInteger({"int":this.e}),new KJUR.asn1.DERInteger({bigint:this.d}),new KJUR.asn1.DERInteger({bigint:this.p}),new KJUR.asn1.DERInteger({bigint:this.q}),new KJUR.asn1.DERInteger({bigint:this.dmp1}),new KJUR.asn1.DERInteger({bigint:this.dmq1}),new KJUR.asn1.DERInteger({bigint:this.coeff})]},b=new KJUR.asn1.DERSequence(a);return b.getEncodedHex()},jb.prototype.getPrivateBaseKeyB64=function(){return tb(this.getPrivateBaseKey())},jb.prototype.getPublicBaseKey=function(){var a={array:[new KJUR.asn1.DERObjectIdentifier({oid:"1.2.840.113549.1.1.1"}),new KJUR.asn1.DERNull]},b=new KJUR.asn1.DERSequence(a);a={array:[new KJUR.asn1.DERInteger({bigint:this.n}),new KJUR.asn1.DERInteger({"int":this.e})]};var c=new KJUR.asn1.DERSequence(a);a={hex:"00"+c.getEncodedHex()};var d=new KJUR.asn1.DERBitString(a);a={array:[b,d]};var e=new KJUR.asn1.DERSequence(a);return e.getEncodedHex()},jb.prototype.getPublicBaseKeyB64=function(){return tb(this.getPublicBaseKey())},jb.prototype.wordwrap=function(a,b){if(b=b||64,!a)return a;var c="(.{1,"+b+"})( +|$\n?)|(.{1,"+b+"})";return a.match(RegExp(c,"g")).join("\n")},jb.prototype.getPrivateKey=function(){var a="-----BEGIN RSA PRIVATE KEY-----\n";return a+=this.wordwrap(this.getPrivateBaseKeyB64())+"\n",a+="-----END RSA PRIVATE KEY-----"},jb.prototype.getPublicKey=function(){var a="-----BEGIN PUBLIC KEY-----\n";return a+=this.wordwrap(this.getPublicBaseKeyB64())+"\n",a+="-----END PUBLIC KEY-----"},jb.prototype.hasPublicKeyProperty=function(a){return a=a||{},a.hasOwnProperty("n")&&a.hasOwnProperty("e")},jb.prototype.hasPrivateKeyProperty=function(a){return a=a||{},a.hasOwnProperty("n")&&a.hasOwnProperty("e")&&a.hasOwnProperty("d")&&a.hasOwnProperty("p")&&a.hasOwnProperty("q")&&a.hasOwnProperty("dmp1")&&a.hasOwnProperty("dmq1")&&a.hasOwnProperty("coeff")},jb.prototype.parsePropertiesFrom=function(a){this.n=a.n,this.e=a.e,a.hasOwnProperty("d")&&(this.d=a.d,this.p=a.p,this.q=a.q,this.dmp1=a.dmp1,this.dmq1=a.dmq1,this.coeff=a.coeff)};var Tb=function(a){jb.call(this),a&&("string"==typeof a?this.parseKey(a):(this.hasPrivateKeyProperty(a)||this.hasPublicKeyProperty(a))&&this.parsePropertiesFrom(a))};Tb.prototype=new jb,Tb.prototype.constructor=Tb;var Ub=function(a){a=a||{},this.default_key_size=parseInt(a.default_key_size)||1024,this.default_public_exponent=a.default_public_exponent||"010001",this.log=a.log||!1,this.key=null};Ub.prototype.setKey=function(a){this.log&&this.key&&console.warn("A key was already set, overriding existing."),this.key=new Tb(a)},Ub.prototype.setPrivateKey=function(a){this.setKey(a)},Ub.prototype.setPublicKey=function(a){this.setKey(a)},Ub.prototype.decrypt=function(a){try{return this.getKey().decrypt(ub(a))}catch(b){return!1}},Ub.prototype.encrypt=function(a){try{return tb(this.getKey().encrypt(a))}catch(b){return!1}},Ub.prototype.getKey=function(a){if(!this.key){if(this.key=new Tb,a&&"[object Function]"==={}.toString.call(a))return void this.key.generateAsync(this.default_key_size,this.default_public_exponent,a);this.key.generate(this.default_key_size,this.default_public_exponent)}return this.key},Ub.prototype.getPrivateKey=function(){return this.getKey().getPrivateKey()},Ub.prototype.getPrivateKeyB64=function(){return this.getKey().getPrivateBaseKeyB64()},Ub.prototype.getPublicKey=function(){return this.getKey().getPublicKey()},Ub.prototype.getPublicKeyB64=function(){return this.getKey().getPublicBaseKeyB64()},a.JSEncrypt=Ub}(JSEncryptExports);var JSEncrypt=JSEncryptExports.JSEncrypt;/*[/static/bui/extension/log/login.js]*/
+/**
+ * 登录
+ */
+(function (global, $, document, undefined) {
+    'use strict';
+
+    var publickey = '-----BEGIN PUBLIC KEY-----' +
+            'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2qC67Y3KF6mupPBsnsoI' +
+            'qEM1dfohMkMI4Rxj60Ae3MOT+Ch3vPZwCj4P5vVw+sVuRv0N94MqraNxLBlQfyeI' +
+            'f2Vu1KOdHD+gFfWneSrNM7Cs4b7Cn+ctCf9tJ239IrLilfsasV6iWc7kDHGIwInM' +
+            'J9XqqTZTBnWP07SCQYf8J3mL/vw/PY1klBknwh8oLuJi8+BfAS1KPgMuK60NxTAM' +
+            'ny+9h9Dno1kVGeLa0Osm4TkVWK9Uyx0XbbV0IfrnbpT/0FUxC6X+K+gHsWzmywrC' +
+            '7145+Bgz0lQo2kRTy551RcyMStlT41poc6ASn8mzCMD4u4MyNU+V0srtFBD8fdwZ' +
+            'ZwIDAQAB' +
+            '-----END PUBLIC KEY-----';
+
+    // 错误信息显示
+    var Message = {
+        container: null,
+        show: function (text) {
+            this.container.html(text);
+        },
+
+        clear: function () {
+            this.show('');
+        }
+    };
+
+    // '/common/image_captcha.php?type=zhongwen&width=110&height=32"'
+    
+    function createVerifyCode(url) {
+        var html = '<p class="input-set verify-code">' +
+                '<label class="float label-verify-code">验证码</label>' +
+                '<input type="text" name="verify_code" class="login-input-text"' +
+                    'data-toggle="validate"' +
+                    'placeholder="输入验证码"' +
+                    'data-required data-required-message="不能为空" />' +
+                    '<img class="verify-code-img"' +
+                        'width="88" height="32" />' +
+            '</p>';
+
+        $('#captchaWrap').html(html);
+        var $verifyCode = $('.verify-code-img');
+        
+        $verifyCode.click(function () {
+            var src = url + '&t=' + (new Date()).getTime();
+            $verifyCode.attr('src', src);
+        }).click();
+    }
+
+    function createGeeTest(url) {
+        var captchaWrap = document.getElementById('captchaWrap'),
+            script = document.createElement('script');
+
+        script.src = url;
+
+        captchaWrap.innerHTML = '';
+        captchaWrap.appendChild(script);
+    }
+
+    function refreshCaptcha() {
+        var $verifyCode = $('.verify-code-img, .gt_refresh_button');
+        $verifyCode[0].click();
+    }
+
+    function getCaptcha() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://' + bui.webSite.getWebDomain() + '/common/drag_captcha.php?jsoncallback=?',
+            data: {
+                type: 'geetest',
+                position: 'float',
+                submitid:'submit'
+            },
+            cache: false,
+            dataType: 'jsonp',
+            success: function(data){
+                if (data.status === 'success') {
+                    if (data.type === 'drag') {
+                        createGeeTest(data.url);
+                    } else if (data.type === 'image') {
+                        createVerifyCode(data.url);
+                    }
+                }
+            }
+        });
+    }
+
+    function loginGardener(uid, isPopup, returnHref) {
+        var $loginGardener = $($('#tmplLoginGardener').html());
+        $loginGardener.find('a[data-mark=verify]').click(function (e) {
+            var href = '/common/reg.ajax.2013.php',
+                val = $loginGardener.find('input[name=code]').val();
+
+            e.preventDefault();
+ 
+            if (val === '') {
+                alert('请输入短信验证码！');
+                return false;
+            }
+
+ 
+            $.getJSON(href, {
+                action: 'verifySMS',
+                uid: uid,
+                code: val
+            }, function(data) {
+                if (data.status == 'success') {
+                    $.publish('success.login.log');
+                    if (!isPopup && returnHref) {
+                        if ($.isPlainObject(data.sso)) {
+                            bui.sso.setLoginCookie(data.sso.list,
+                                    data.sso.lcookie,
+                                    data.sso.nlcookie,
+                                    function () {
+                                        global.location.href = decodeURIComponent(returnHref);
+                                    });
+                        }
+                    }
+                } else {
+                    alert('手机没有验证成功！');
+                }
+            });
+            return false;
+        });
+        $loginGardener.overlay();
+    }
+
+
+    function init(isPopup) {
+        var $login = $('#login'),
+            $verify = $($('#tmplLoginVerify').html()),
+            $againVerify = $($('#tmplAgainLoginVerify').html()),
+            $verifyResult = $($('#tmplLoginVerifyResult').html());
+
+        getCaptcha();
+
+        $login.find('input[name=password], input[name=identify], input[name=verify_code]').placeholder();
+
+        if (isPopup) {
+            $login.find('a[data-toggle=signup]').one('click', function (e) {
+                function auto () {
+                    if (bui.getCookie && bui.getCookie('LS')) {
+                        $.publish('success.login.log');
+                        $(window).unbind('focus', auto);
+                    }
+                }
+                $(window).bind('focus', auto);
+            });
+
+            var $link = $login.find('.sub-register-enter a');
+            $link.attr('href', $link.attr('href') + '&url=' + encodeURIComponent(location.href));
+        }
+
+        Message.container = $login.find('[data-mark="error-message"]');
+
+        $login.delegate('[data-toggle=validate]', 'focus', function () {
+            var $this = $(this);
+
+            // 清除错误信息
+            $this.removeClass('login-input-text-error');
+            $this.nextAll('span.error-tip').remove();
+
+            Message.clear();
+        });
+
+        $login.delegate('[data-toggle=validate]', 'blur', function () {
+            var $this = $(this),
+                validate = $this.data('validate'),
+                result;
+
+            if (validate) {
+                result = validate.checkValidity();
+                if (result !== true) {
+                    $this.addClass('login-input-text-error');
+                    $this.nextAll('span.error-tip').remove();
+                    $this.after('<span class="error-tip">' + result + '</span>');
+                }
+            }
+        });
+
+        $login.delegate('[data-toggle=validate]', 'keydown', function () {
+            var $this = $(this);
+
+            Message.clear();
+        });
+
+        $login.delegate('form', 'submit', function () {
+            var $this = $(this),
+                $elems = $this.find('[data-toggle=validate]'),
+                $submit = $this.find('input[type=submit]'),
+                data = $this.serializeArray(),
+                validity = true;
+
+            $elems.each(function () {
+                var $this = $(this),
+                    validate = $this.data('validate'),
+                    result;
+
+                if (!validate) {
+                    $this.validate();
+                    validate = $this.data('validate');
+                }
+
+                result = validate.checkValidity();
+
+                if (result !== true) {
+                    validity = result;
+                    $this.blur();
+                }
+            });
+
+            if (validity === true) {
+                $submit.prop('disabled', true);
+
+                $.each(data, function (index, obj) {
+                    var encrypt;
+                    if (obj.name === 'identify' || obj.name === 'password') {
+                        encrypt = new JSEncrypt();
+                        encrypt.setPublicKey(publickey);
+                        obj.value = encrypt.encrypt(obj.value);
+                    }
+                });
+
+                $.getJSON($this.attr('action'), $.param(data)).done(function (resp) {
+                    function wrapper() {
+                        if (resp.status == 'success') {
+                            $.publish('success.login.log');
+
+                            if (!isPopup && resp.href) {
+                                global.location.href = decodeURIComponent(resp.href);
+                            }
+
+                        } else {
+                            if ((resp.code === 2 || resp.code === 5) && resp.href) {
+                                // 邮箱验证弹层
+                                var $a;
+                                if (resp.code === 2) {
+                                    $a = $verify.find('a');
+                                } else if (resp.code === 5) {
+                                    $a = $againVerify.find('a');
+                                }
+
+                                $a.attr('href', resp.href);
+
+                                if (isPopup) {
+                                    $a.attr('target', '_blank');
+                                    $a.click(function (e) {
+                                        //e.preventDefault();
+                                        var $a = $verifyResult.find('a[data-mark=verify]');
+                                        $a.attr('href', resp.href);
+
+                                        $verifyResult.find('a[data-mark=continue]').click(function (e) {
+                                            var href = resp.href.replace('action=send_mail', 'jsoncallback=?');
+                                            $.getJSON(href, {
+                                                action: 'check_verify'
+                                            }, function(data) {
+                                                if (data.status == 'success') {
+                                                    $.publish('success.login.log');
+                                                } else {
+                                                    alert('邮箱没有验证成功！');
+                                                }
+                                            });
+                                            return false;
+                                        });
+                                        $verifyResult.overlay();
+                                    });
+                                }
+
+                                if (resp.code === 2) {
+                                    $verify.overlay();
+                                } else if (resp.code === 5) {
+                                    $againVerify.overlay();
+                                }
+
+                            } else if (resp.code === 3) {
+                                // 已登录自动跳转
+                                // 已登录，应归为登录成功
+                                $.publish('success.login.log');
+
+                                if (resp.href) {
+                                    global.location.href = decodeURIComponent(resp.href);
+                                }
+
+                            } else if (resp.code === 100) {
+                                loginGardener(resp.uid, isPopup, resp.href);
+                            } else if (resp.code === 101 || resp.code === 102) {
+                                Message.show(resp.text);
+                            } else if (resp.text) {
+                                //刷新验证码 1：密码输入错误，6：验证码输入错误
+                                if (resp.code === 1 || resp.code === 6) {
+                                    refreshCaptcha();
+                                }
+                                // 错误提示
+                                Message.show(resp.text);
+                            }
+                        }
+                    }
+
+                    if ($.isPlainObject(resp.sso)) {
+                        bui.sso.setLoginCookie(resp.sso.list,
+                                resp.sso.lcookie,
+                                resp.sso.nlcookie,
+                                wrapper);
+                    } else {
+                        wrapper();
+                    }
+                //}).fail(function () {
+                }).always(function () {
+                    $submit.prop('disabled', false);
+                });
+            }
+
+            return false;
+        });
+    }
+
+    if ($('#login').length) {
+        init();
+    } else {
+        // 注册登录弹层
+        $.subscribe('login.log', function (view) {
+            // view参数确定log服务返回的模板
+            var data = {
+                    view: view || 'login'
+                },
+                url = 'http://' + bui.webSite.getWebDomain() + '/common/log.php?jsoncallback=?';
+
+            $.getJSON(url, data).done(function (resp) {
+                var $login = $(resp.content);
+
+                $login.overlay({
+                    onshown: function () {
+                        $.publish('shown.login.log');
+                    },
+                    onclosed: function () {
+                        $.publish('closed.login.log');
+                    }
+                });
+
+                // 弹层关闭
+                $.subscribe('success.login.log', function () {
+                    // overlay是享元模式
+                    if ($login.data('overlay')) {
+                        $login.data('overlay').close();
+                    }
+                    $.publish('closed.log');
+                });
+
+                init(true);
+            //}).fail(function () {
+            //}).always(function () {
+            });
+        });
+    }
+
+}(this, jQuery, document));
+/*[/static/bui/extension/log/log.js]*/
+/**
+ * login signup 公共接口
+ */
+(function (global, $, document, undefined) {
+    'use strict';
+
+    var $body = $(document);
+
+    $body.delegate('.login-form-popup [data-toggle="close.overlay"]', 'click', function () {
+        $.publish('closed.log');
+    });
+
+    // 登录 弹层
+    $body.delegate('[data-toggle="login.log"]', 'click', function (e) {
+        e.preventDefault();
+        $.publish('login.log', $(this).data('view'));
+    });
+
+    // 注册 弹层
+    $body.delegate('[data-toggle="signup.log"]', 'click', function (e) {
+        e.preventDefault();
+
+        $.publish('signup.log', $(this).data('view'));
+    });
+
+}(this, jQuery, document));
+/*[/static/bui/extension/log/polyfill.js]*/
+/**
+ * 登录注册
+ * 覆盖老解决方案的接口
+ */
+(function (global, $, document, undefined) {
+    'use strict';
+
+    function login(options, callback) {
+        $.subscribe('shown.login.log', function () {
+            //console.log('shown.login.log');
+            var content = options && options.content;
+            $('#pAutoSave').html(content);
+        });
+        $.subscribe('success.login.log', function () {
+            //console.log('success.login.log');
+            callback();
+        });
+ 
+        /*
+        $.subscribe('closed.login.log', function () {
+            console.log('closed.login.log');
+        });
+        */
+
+        $.subscribe('closed.log', function () {
+            //console.log('clear');
+            $.unsubscribe('shown.login.log');
+            $.unsubscribe('success.login.log');
+            $.unsubscribe('closed.login.log');
+        });
+    }
+
+    function signup(options, callback) {
+        $.subscribe('shown.signup.log', function () {
+            //console.log('shown.signup.log');
+            var content = options && options.content;
+            $('#pAutoSave').html(content);
+        });
+
+        $.subscribe('success.signup.log', function () {
+            //console.log('success.signup.log');
+            callback();
+        });
+ 
+        /*
+        $.subscribe('closed.signup.log', function () {
+            console.log('closed.signup.log');
+        });
+        */
+
+        $.subscribe('closed.log', function () {
+            //console.log('clear');
+            $.unsubscribe('shown.signup.log');
+            $.unsubscribe('success.signup.log');
+            $.unsubscribe('closed.signup.log');
+        });
+    }
+
+    window.reg_show_popup = function (type, callback, action, speTitle, redirect_url, options){
+        var params;
+
+        login(options, callback);
+
+        signup(options, callback);
+
+        if (action != 'login' && action != 'reg') {
+            action = 'login';
+        }
+        var channel = options && options.channel;
+        if (action == 'login') {
+            $.publish('login.log', channel === 'ask' ? 'ask.login' : channel);
+        } else if (action == 'reg') {
+            $.publish('signup.log', channel === 'ask' ? 'ask.signup' : channel);
+        }
+    };
+
+}(this, jQuery, document));
+/*[/img/bui/widget/scroll2anywhere.js]*/
+(function(c){var b=(window.opera)?(document.compatMode=="css1compat"?c("html"):c("body")):c("html,body");var d=c(window);var a=!(c.browser.msie&&parseInt(c.browser.version,10)==6);var e=function(g,f){this.init("scroll2anywhere",g,f)};e.prototype={constructor:e,init:function(h,g,f){this.type=h;this.$element=c(g);this.options=this.getOptions(f);this.$element.bind("click",c.proxy(this.click,this));if(this.options.showtopspacing!==0){c(window).bind("scroll",c.proxy(this.calculatePosition,this));this.calculatePosition("first")}},getOptions:function(f){f=c.extend({},c.fn[this.type].defaults,f,this.$element.data());return f},click:function(h){if(!a){return}var f=c(h.currentTarget).attr("href");if(f.indexOf("#")!=-1){var g;if(f==="#"){g=0}else{if(c(f).offset()){g=c(f).offset().top}else{g=0}}if(this.options.animation){b.animate({scrollTop:g},this.options.scrolltime,function(){location.hash=f})}else{b.scrollTop(g)}}return false},calculatePosition:function(h){var g=this.options.showtopspacing;var f=this.options.fadetime;if(h=="first"){f=0}if(g<d.scrollTop()){if(f>0){this.$element.fadeIn()}else{this.$element.show()}}else{if(f>0){this.$element.fadeOut()}else{this.$element.hide()}}}};c.fn.scroll2anywhere=function(f){return this.each(function(){var i=c(this),h=i.data("scroll2anywhere"),g=typeof option=="object"&&option;if(!h){i.data("scroll2anywhere",(h=new e(this,g)))}if(typeof option=="string"){h[option]()}})};c.fn.scroll2anywhere.defaults={animation:true,scrolltime:500,showtopspacing:0,fadetime:300};c(function(){if(a){c("body").delegate('[data-provide="scroll2anywhere"]',"click.scroll2anywhere",function(g){var f=c(this);if(f.data("scroll2anywhere")){return}g.preventDefault();g.stopPropagation();f.scroll2anywhere(f.data());f.trigger("click");return})}})})(jQuery);/*[/img/community/topic_img_reply.js]*/
+$(function(){
+    var button_html = '<button style="position:absolute;right:3px;bottom:5px;display:none" class="img_reply_button">引用图片回复</button>';
+    if( bui.webSite.isLogin ){
+        $('.postContent').find('img').each(function(){
+                var width = $(this).width();
+                var height = $(this).height();
+                if( width > 200 && height > 100 ){
+                    var div = $(this).wrap('<div style="position:relative;width:'+width+'px; display: inline-block;"></div>');
+                    $(this).after(button_html);
+                    $(this).bind({
+                        mouseenter:function(){
+                            $(this).next().css({'display':''});
+                        },
+                        mouseleave:function(){
+                            $(this).next().css({'display':'none'});
+                        }
+                    });
+                }
+        });
+    }
+
+    $('.img_reply_button').bind({
+        mouseenter:function(){
+            $(this).css({'display':''});
+        },
+        click:function(){
+            var img_src = $(this).prev().attr('src');
+            var text = $('#img_reply_text').val();
+            var discussion_id= $('.quickReply').find(':input[name=discussion_id]').val();
+            var crumb = $('.quickReply').find(':input[name=crumb]').val();
+            var ts= $('.quickReply').find(':input[name=ts]').val();
+
+            var html = '<h5>引用回复</h5><br><form id="img_reply_form" method="POST" action="/community/discuz_ajax.php?callback=replySuccessNew&iframe=1" target="postReplyIframe"><input type="hidden" name="action" value="reply"/><input type="hidden" name="discussion_id" value="'+discussion_id+'"/><input type="hidden" name="crumb" value="'+crumb+'"/><input type="hidden" name="ts" value="'+ts+'"/> <input type="hidden" name="response" value=""/><textarea id="img_reply_text" style="width:350px"></textarea>'+
+            '<div id="img-antibot-area">' +
+            '</div>' +
+            '<div style="text-align:right"><button id = "reply_topic" class="bui-button-green img_reply_button_but" data-img="'+img_src+'">回复</button></div>' + 
+            '</form>';
+
+            bui.pop_up({
+                timeout : false,
+                hasClose : true,
+                modal: true,
+                width: 400,
+                info : html
+            });
+        }
+    });
+
+    $('.img_reply_button_but').live({
+        click:function(){
+            var flag = 0 ;
+            var img_src = $(this).attr('data-img');
+            var text = $('#img_reply_text').val();
+            var content = text+'<br><span class="DivReferStyle" name="babytree_refer"><b>引用图片：</b><br/><img src="'+img_src+'"/></span>'
+            $('#img_reply_form').find(':input[name=response]').val(content);
+
+            setOnReplySuccess(function(result) {
+                switch (result.status) {
+                    case 'antibot_show':
+                        // 显示验证码输入框
+                        bindAntibot('#img-antibot-area');
+                        $('.img_reply_button_but').removeAttr("disabled"); 
+                        break;
+                    case 'antibot_error':
+                        // 刷新验证码
+                        getAntibotIMG('#img-antibot-area');
+                        $('.img_reply_button_but').removeAttr("disabled"); 
+                        break;
+                }
+            });
+
+            $('#img_reply_form').submit();
+            $(this).attr("disabled","true"); 
+        }
+    });
+
+});
+/*[/img/bui/widget/tab.js]*/
+(function(b){var a=function(c){this.element=b(c)};a.prototype={constructor:a,show:function(){var i=this.element,f=i.closest("dl,ol,ul"),d=i.attr("data-target"),g,c,h;if(!d){d=i.attr("href");d=d&&d.replace(/.*(?=#[^\s]*$)/,"")}if(i.parent("dd,li").hasClass("active")){return}g=f.find(".active a").last()[0];h=b.Event("show",{relatedTarget:g});i.trigger(h);if(h.isDefaultPrevented()){return}c=b(d);f.find("> .active").removeClass("active");i.parent("dd,li").addClass("active");c.parent().find("> .bui-tab-content-active").removeClass("bui-tab-content-active");c.addClass("bui-tab-content-active");i.trigger({type:"shown",relatedTarget:g})}};b.fn.tab=function(c){return this.each(function(){var e=b(this),d=e.data("tab");if(!d){e.data("tab",(d=new a(this)))}if(typeof c=="string"){d[c]()}})};b.fn.tab.Constructor=a;b(function(){b("body").delegate('[data-toggle="tab"]',"click",function(c){c.preventDefault();b(this).tab("show")})})})(jQuery);
+/*[/static/bui/extension/report/report.js]*/
+jQuery('a[func="report"]').click(function () {
+        var content_id = $(this).attr('content_id');
+        var content_type = $(this).attr('content_type');
+        var reported_uid = $(this).attr('reported_uid');
+        var reported_nickname = $(this).attr('reported_nickname');
+        var html = '<table class="table">';
+        html +=         '<h6>我要举报'+reported_nickname+'发的内容</h6>';
+        html +=     '<br />'
+        html +=     '<tr>';
+        html +=         '<td>'
+        html +=         '<lable>请选择举报类型：</lable>';
+        html +=         '</td>'
+        html +=         '<td>'
+        html +=             '<input type="radio" class="report_type" name="report_type" value="1" />垃圾广告';
+        html +=             '<input type="radio" class="report_type" name="report_type" value="2" />敏感信息<br />';
+        html +=             '<input type="radio" class="report_type" name="report_type" value="3" />虚假中奖';
+        html +=             '<input type="radio" class="report_type" name="report_type" value="4" />淫秽色情<br />';
+        html +=             '<input type="radio" class="report_type" name="report_type" value="5" />不实信息<br />';
+        html +=         '</td>';
+        html +=     '</tr>';
+        html +=     '<tr>'
+            html +=         '<td>'
+            html +=             '<lable>需要举报补充说明：</lable>';
+        html +=         '</td>'
+            html +=         '<td>';
+        html +=             '<textarea id="report_reason" name="report_reason" value="" placeholder="请填写举报理由"></textarea>';
+        html +=         '</td>';
+        html +=     '</tr>';
+        html +=     '<tr>';
+        html +=         '<td>';
+        html +=             '<input type="button" id="tureReport" value="确定" />';
+        html +=         '</td>';
+        html +=         '<td>';
+        html +=             '<input type="button" id="closeReport" value="取消" />';
+        html +=         '</td>';
+        html +=     '</tr>';
+        html += '</table>';
+        if(typeof(check_user_login)=="function" && typeof(login)=="boolean" && login==false){
+            check_user_login("comment",function(){  window.location.reload(); });
+            return false;
+        }   
+        bui.pop_up({
+            timeout : false,// 如果一直存在，将timeout:false就可以了
+            hasClose : true,
+            width: 400,
+            info : html
+         });
+
+$('#tureReport').click(function(){
+        var report_reason = $.trim($('#report_reason').val());
+        var report_type = $('input:radio:checked').val();
+        if (report_reason.length > 140) {
+        alert('理由太长');
+        return false;
+        }
+        if (!report_type) {
+        alert('请选择举报类型');
+        return false;
+        }
+        $.post(
+            '/report/report_new_ajax.php',
+            {
+            'action': 'report',
+            'content_id': content_id,
+            'content_type': content_type,
+            'reported_uid': reported_uid,
+            'report_reason': report_reason,
+            'report_type': report_type
+            },
+            function(data) {
+            if (data['status'] == '0') {
+            alert('举报成功');
+            $('.bui-close').click();
+            }else{
+            alert('举报失败');
+            $('.bui-close').click();
+            }
+            },
+            'json');
+});
+
+
+$('#closeReport').click(function(){
+        $('.bui-close').click();
+        });
+});
+
+/*[/static/bui/widget/util.js]*/
+(function(a){if(typeof bui=="undefined"){bui={}}bui.widget=bui.widget||{getScrollWidth:function(){return Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)},getScrollHeight:function(){return Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)},getViewportHeight:function(){var b=0;if(window.innerHeight){b=window.innerHeight}else{if(document.documentElement&&document.documentElement.clientHeight){b=document.documentElement.clientHeight}else{if(document.body&&document.body.clientHeight){b=document.body.clientHeight}}}return b},getViewportWidth:function(){var b=0;if(window.innerWidth){b=window.innerWidth}else{if(document.documentElement&&document.documentElement.clientWidth){b=document.documentElement.clientWidth}else{if(document.body&&document.body.clientWidth){b=document.body.clientWidth}}}return b},getScrollTop:function(){var b=0;if(document.documentElement&&document.documentElement.scrollTop){b=document.documentElement.scrollTop}else{if(document.body&&document.body.scrollTop){b=document.body.scrollTop}}return b},getScrollLeft:function(){var b=0;if(document.documentElement&&document.documentElement.scrollLeft){b=document.documentElement.scrollLeft}else{if(document.body&&document.body.scrollLeft){b=document.body.scrollLeft}}return b},getViewportCenter:function(){var b=this.getViewportHeight(),g=this.getViewportWidth(),d=this.getScrollTop(),e=this.getScrollLeft();var f={x:g/2+e,y:b/2+d};return f},getXY:function(d){var c=d.offsetLeft;var b=d.offsetTop;d=d.offsetParent;while(d){c+=d.offsetLeft;b+=d.offsetTop;d=d.offsetParent}return{left:c,top:b}},getCurrentHighestZIndex:function(){var c=(function(){var i=document.defaultView;if(i&&i.getComputedStyle){return function(j){return i.getComputedStyle(j,null)}}else{return function(j){return j.currentStyle}}}());var e=[];var d=document.getElementsByTagName("BODY")[0].getElementsByTagName("*");for(var f=0,b=d.length;f<b;f++){var h=d[f];var g;if(h.nodeType===1){g=c(h);if(g.position&&g.position!="static"&&g.zIndex!="auto"){e.push(parseInt(g.zIndex,10))}}}e.sort();return e[e.length-1]||0}}})(jQuery);(function(d,a){var c=function(e){var i=e.offset()||{top:e.scrollTop(),left:e.scrollLeft()};var f=d("body");var h=parseInt(f.css("border-top-width"),10),g=parseInt(f.css("border-left-width"),10);if(h){i.top+=h}if(g){i.left+=g}return i},b=function(v,f,t){var p="",w=f[0].offsetWidth,i=f[0].offsetHeight,s=v.width(),m=v.height(),j=c(t),n=t.width(),r=t.height(),k=c(v),q=k.top-j.top,l=k.top-j.top+m,g=j.top+r-k.top-m,x=j.top+r-k.top,o=k.left-j.left,h=k.left-j.left+s,e=j.left+n-k.left-s,u=j.left+n-k.left;if(g>i){p="b";if(u>w){p+="l"}else{if(h>w){p+="r"}}}else{if(q>i){p="t";if(u>w){p+="l"}else{if(h>w){p+="r"}}}else{if(e>w){p="r";if(x>i){p+="t"}else{if(l>i){p+="b"}}}else{if(o>w){p="l";if(x>i){p+="t"}else{if(l>i){p+="b"}}}}}}if(p=="l"||p=="r"){p+="t"}else{if(p.length<=1){p="bl"}}return p};a.snuggle=function(l,e,m){m=d.extend({},a.snuggle.options,m);var j=d(l),i=d(e),k=d(m.container),h,g=m.placement,f=c(j);i.css({position:"absolute",top:0,left:0,bottom:"",right:"",display:"block"}).appendTo(document.body);if(g=="auto"){g=b(j,i,k)}switch(g){case"bl":h={top:f.top+j.height(),left:f.left};break;case"bm":h={top:f.top+j.height(),left:f.left+j.width()/2-i.outerWidth()/2};break;case"br":h={top:f.top+j.height(),left:f.left+j.width()-i.outerWidth()};break;case"tl":h={top:f.top-i.outerHeight(),left:f.left};break;case"tm":h={top:f.top-i.outerHeight(),left:f.left+j.width()/2-i.outerWidth()/2};break;case"tr":h={top:f.top-i.outerHeight(),left:f.left+j.width()-i.outerWidth()};break;case"rt":h={top:f.top,left:f.left+j.width()};break;case"rm":h={top:f.top+j.height()/2-i.outerHeight()/2,left:f.left+j.width()};break;case"rb":h={top:f.top+j.height()-i.outerHeight(),left:f.left+j.width()};break;case"lt":h={top:f.top,left:f.left-i.outerWidth()};break;case"lm":h={top:f.top+j.height()/2-i.outerHeight()/2,left:f.left-i.outerWidth()};break;case"lb":h={top:f.top+j.height()-i.outerHeight(),left:f.left-i.outerWidth()};break}i.css(h);d(window).resize(function(){var n=c(j);i.css({top:h.top+n.top-f.top,left:h.left+n.left-f.left})})};a.snuggle.options={container:window,placement:"auto"}}(window.jQuery,window.bui));
