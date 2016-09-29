@@ -8,11 +8,18 @@
 	* Contains some useful scripts
 
 * UserPostCrawler
-	* 
+	* crawler.py
+	* parser.py
+	* input: babytree_user_id.csv
+	* output: babytree_user_post_url.csv (user_id; postdummy; board; date; url)
+	
 * UserPostContent
+	* crawler.py
+	* parser.py
+	* input: babytree_user_post_url.csv
+	* output: babytree_user_post_content.csv
 
 
-## Detailed introduction of some important folders
 --
 #User Post Crawler
 
