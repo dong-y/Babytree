@@ -153,7 +153,7 @@ def get_n_write_info(url, inputf, outf, outf2):
 
 def main():
 	# output variables
-	variables = ['user_id', 'timestamp', 'forum_level', 'city', 'hospital', 'hospital_no', 'imagecnt', 'content']
+	variables = ['url','user_id', 'forum_level', 'timestamp', 'city', 'hospital_no', 'imagecnt']
 	# initialization (this is ugly - fix it later)
 	YYYYMM = '201607'
 	inputdir = 'Input_' + YYYYMM + '/'
