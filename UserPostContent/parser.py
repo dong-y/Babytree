@@ -121,13 +121,13 @@ def find_user_info(div_post):
 	print '****************************'
 	return user_info
 
-def get_n_write_info(inputf, outf, outf2):
+def get_n_write_info(url, inputf, outf, outf2):
 	try:
 		with codecs.open(inputf, 'r', encoding='utf-8', errors='ignore') as fdata:
 			soup = BeautifulSoup(fdata)
 			# print soup
 			clubTopicSinglePost = soup.find(class_ = 'clubTopicSinglePost')
-			print clubTopicSinglePost
+			# print clubTopicSinglePost
 			info_eng = find_user_info(clubTopicSinglePost)
 			something = find_post_content(soup)
 			content_cn = something[1]
@@ -137,17 +137,18 @@ def get_n_write_info(inputf, outf, outf2):
 			# user_info.append(something[1])
 			# user_info.append(title)
 			# print(user_info)
-			print info_eng
-			info_eng = '\t'.join(user_info)
+			info_eng = '\t'.join(info_eng)
 			# print(outputtext)
 	except: 
 		info_eng = ''
 		content_cn = ''
 	f = codecs.open(outf,'a', 'utf-8')
-	f.write(inputf + info_eng + '\n') #exclude the Chinese content
+	print info_eng
+	f.write(url + '\t' + info_eng + '\n') #exclude the Chinese content
 	f.close()
 	f2 = codecs.open(outf2, 'a', 'utf-8')
-	f2.write(inputf + '\t' + content_cn + '\n')
+	print content_cn
+	f2.write(url + '\t' + content_cn + '\n')
 	f2.close()
 
 def main():
@@ -172,9 +173,9 @@ def main():
 	with open(inputdir + 'babytree_user_post_url.csv', 'r') as csvfile:
 		reader = csv.reader(csvfile, delimiter = ';')
 		for row in reader:
-			# if count == 277:	
-			print '*********************************************'
-			print '****Do not worry, I am parsing No.%d file****' %(count)
+			# if count <10:	#pretest
+			print '**********************************************************'
+			print '*********** Do not worry, I am parsing No.%d file ********' %(count)
 			user_id = row[0]
 			url = row[4]
 			url_filename = url.replace('/','_').replace(':','_').replace('.','_')
@@ -182,14 +183,14 @@ def main():
 			# print inputf #############
 			if os.path.isfile(inputf):
 				print '****** Hi! File exists ******'
-				get_n_write_info(inputf, outf, outf2)
+				get_n_write_info(url, inputf, outf, outf2)
 			else:
 				print url + ' file does not exist'
 				f = open('ioerror_parsing.txt','a')
 				f.write(url + '\n')
 				f.close()
 			count += 1
-
+			print '**********************************************************'
 			# break #let's pretest it once
 
 main()
